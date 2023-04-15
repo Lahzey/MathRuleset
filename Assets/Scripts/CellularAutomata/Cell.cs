@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 
 namespace CellularAutomata {
@@ -25,9 +26,11 @@ public enum Cell {
 }
 
 static class CellExtensions {
-	
+
+	private static TextureInfo[] cellTextures = new TextureInfo[Enum.GetValues(typeof(Cell)).Length];
+
 	public static bool IsBuildable(this Cell cell) {
-		return cell is Cell.GRASS or Cell.WATER;
+		return cell == Cell.GRASS;
 	}
 	public static float GetNoiseThreshold(this Cell cell) {
 		switch (cell) {
@@ -40,49 +43,38 @@ static class CellExtensions {
 	}
 	public static float GetNoiseScale(this Cell cell) {
 		switch (cell) {
-			case Cell.TREE: return 0.05f;
-			case Cell.WATER: return 0.01f;
-			case Cell.STONE: return 0.05f;
-			case Cell.GOLD: return 0.1f;
+			case Cell.TREE: return 0.1f;
+			case Cell.WATER: return 0.04f;
+			case Cell.STONE: return 0.2f;
+			case Cell.GOLD: return 0.4f;
 			default: return 0;
 		}
 	}
 
-	public static Color GetColor(this Cell cell) {
-		switch (cell) {
-			case Cell.EDGE:
-				return Color.black;
-			case Cell.GRASS:
-				return new Color(0.79f, 1f, 0.24f);
-			case Cell.TREE:
-				return new Color(0f, 0.39f, 0.11f);
-			case Cell.WATER:
-				return new Color(0.14f, 0.11f, 0.77f);
-			case Cell.STONE:
-				return new Color(0.62f, 0.62f, 0.62f);
-			case Cell.GOLD:
-				return new Color(0.87f, 0.84f, 0.19f);
-			case Cell.LUMBERJACK:
-				return new Color(1, 0, 0);
-			case Cell.STONE_MINE:
-				return new Color(1, 0, 0);
-			case Cell.GOLD_MINE:
-				return new Color(1, 0, 0);
-			case Cell.FARM:
-				return new Color(1, 0, 0);
-			case Cell.FISHING_HUT:
-				return new Color(1, 0, 0);
-			case Cell.WALL:
-				return new Color(1, 0, 0);
-			case Cell.WATCH_TOWER:
-				return new Color(1, 0, 0);
-			case Cell.HOUSE:
-				return new Color(1, 0, 0);
-			case Cell.BARACKS:
-				return new Color(1, 0, 0);
-			default:
-				throw new ArgumentOutOfRangeException(nameof(cell), cell, null);
+	public static Color GetColor(this Cell cell, int pixelX, int pixelY, int tileIndex, int cellSize) {
+		TextureInfo texture = cell.GetTexture();
+		int width = texture.width / cellSize;
+		int height = texture.height / cellSize;
+		int x = pixelX + (tileIndex % height) * cellSize;
+		int y = pixelY + (tileIndex / width) * cellSize;
+		return texture.colors[x + y * texture.width];
+	}
+	
+	private static TextureInfo GetTexture(this Cell cell) {
+		TextureInfo textureInfo = cellTextures[(int) cell];
+		if (textureInfo.colors == null) {
+			Texture2D texture = Resources.Load<Texture2D>("Textures/Cells/" + cell.ToString());
+			textureInfo.colors = texture.GetPixels();
+			textureInfo.width = texture.width;
+			textureInfo.height = texture.height;
 		}
+		return textureInfo;
+	}
+	
+	private struct TextureInfo {
+		public Color[] colors;
+		public int width;
+		public int height;
 	}
 }
 }
