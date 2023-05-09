@@ -15,8 +15,12 @@ public class VectorPhysics : MonoBehaviour {
 	[SerializeField] public bool useGravity = true;
 	[SerializeField] public Vector3 velocity;
 
+	private double dragConstMods; // just a collection of all modifiers in the drag equation that don't change
+
 	private void OnValidate() {
 		if (dragCoefficient < 0) dragCoefficient = 0;
+
+		dragConstMods = -0.5f * AIR_DENSITY * dragCoefficient * areaM2 / weightKg;
 	}
 
 	private void FixedUpdate() {
@@ -33,12 +37,13 @@ public class VectorPhysics : MonoBehaviour {
 			}
 		}
 		
-		// air drag
+		// air drag using integral of drag equation
 		Debug.DrawLine(transform.position, transform.position + airSpeed * 10000, Color.red);
 		Vector3 relativeVelocity = velocity - airSpeed;
-		double airDragPercent = 0.5f * AIR_DENSITY * relativeVelocity.sqrMagnitude * dragCoefficient * areaM2 * time / weightKg;
-		if (airDragPercent > 1) airDragPercent = 1;
-		velocity -= (float) airDragPercent * relativeVelocity.normalized;
+		float relativeMagnitude = relativeVelocity.magnitude;
+		float newRelativeMagnitude = (float) (-1 / (dragConstMods * time - 1 / relativeMagnitude));
+		velocity = airSpeed + newRelativeMagnitude * (relativeVelocity / relativeMagnitude);
+		Debug.Log($"{PV(relativeVelocity)}[{relativeMagnitude}] -> {PV(relativeVelocity / relativeMagnitude)} * {newRelativeMagnitude} = {PV(newRelativeMagnitude * (relativeVelocity / relativeMagnitude))}[{(newRelativeMagnitude * (relativeVelocity / relativeMagnitude)).magnitude}]");
 		
 		// prevent really small numbers, just stop the object
 		if (velocity.x < 0.0001f && velocity.x > -0.0001f) velocity.x = 0;
@@ -47,6 +52,12 @@ public class VectorPhysics : MonoBehaviour {
 		
 		// move
 		transform.position += velocity * time;
+		if (transform.position.y < 0) {
+			transform.position = new Vector3(transform.position.x, 0, transform.position.z);
+			velocity.y = 0;
+		}
 	}
+	
+	private string PV(Vector3 v) => $"({v.x}, {v.y}, {v.z})";
 }
 }

@@ -96,9 +96,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: eee5a42e4b8041e0876de73d1c3ee2cc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  vectorFields:
-  - {fileID: 0}
-  dragCoefficient: 0.5
+  vectorFields: []
+  dragCoefficient: 1
   weightKg: 0.001
   areaM2: 0.01
   useGravity: 1

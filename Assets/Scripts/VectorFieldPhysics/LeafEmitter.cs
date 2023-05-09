@@ -33,12 +33,13 @@ public class LeafEmitter : MonoBehaviour {
 
 			if (leaves[index] != null) {
 				leaves[index].transform.position = spawnPosition;
-				leaves[index].GetComponent<VectorPhysics>().velocity = Vector3.zero;
+				leaves[index].GetComponent<VectorPhysics>().velocity = Vector3.up * 2f;
 			}
 			else {
 				// spawn new instance of leafPrefab
 				leaves[index] = Instantiate(leafPrefab, spawnPosition, Quaternion.identity);
 				leaves[index].GetComponent<VectorPhysics>().vectorFields.AddRange(vectorFields);
+				leaves[index].GetComponent<VectorPhysics>().velocity = Vector3.up * 2f;
 			}
 
 			index++;

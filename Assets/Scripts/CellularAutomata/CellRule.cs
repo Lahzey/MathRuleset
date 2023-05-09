@@ -1,4 +1,5 @@
 ﻿using System;
+using UnityEngine;
 
 namespace CellularAutomata {
 public abstract class CellRule {
@@ -32,14 +33,14 @@ public abstract class CellRule {
 	protected float GetResourceScore(CellGrid grid, int cellX, int cellY, int xRange, int yRange, Cell resourceCell) {
 		float score = 0;
 		float maxScore = 0;
-		Cell cellToCheck;
+		Cell cellToCheck; // moving this outside the loop actually improves performance considerably
 		for (int y = cellY - yRange; y < cellY + yExtent + yRange; y++) {
 			for (int x = cellX - xRange; x < cellX + xExtent + xRange; x++) {
 				cellToCheck = grid[x, y];
 				// for coordinates withing the building, check if place can be built upon
 				if (y >= cellY && y < cellY + yExtent && x >= cellX && x < cellX + xExtent) {
 					if (cellToCheck.IsBuildable()) continue;
-					else return 0; // can abort early, will not be able to build here
+					else return -1; // can abort early, will not be able to build here
 				}
 				
 				// for coordinates outside the building, count up resource score
@@ -104,9 +105,11 @@ public class HouseRule : SimpleCellRule {
 	}
 
 	public override float Evaluate(CellGrid grid, int x, int y) {
+		float resourceScore = base.Evaluate(grid, x, y);
+		if (resourceScore < 0) return 0; // abort early if the cell is not buildable
+		
 		// technically there might be some -1 or +1 errors here, but they would be negligible
 		float centerDistScore = Math.Min(Math.Min(x, grid.Width - x) / (float) (grid.Width / 2), Math.Min(y, grid.Height - y) / (float) (grid.Height / 2));
-		float resourceScore = base.Evaluate(grid, x, y);
 		return (resourceScore + centerDistScore) / 2;
 	}
 }
