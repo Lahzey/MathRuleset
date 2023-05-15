@@ -18,7 +18,7 @@ public class TreeLeaf {
 		BranchGenConfig branchConfig = treeConfig[origin.Branch.Depth];
 	}
 	
-	public void GenerateMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs) {
+	public void GenerateMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
 		Vector3 originPosition = Origin.WorldPosition;
 		Quaternion rotation = WorldRotation;
 		int vertexOffset = vertices.Count;
@@ -46,6 +46,12 @@ public class TreeLeaf {
 		uvs.Add(new Vector2(1, 0));
 		uvs.Add(new Vector2(0, 1));
 		uvs.Add(new Vector2(1, 1));
+		
+		// generate normals
+		normals.Add(rotation * Vector3.forward);
+		normals.Add(rotation * Vector3.forward);
+		normals.Add(rotation * Vector3.forward);
+		normals.Add(rotation * Vector3.forward);
 	}
 }
 }

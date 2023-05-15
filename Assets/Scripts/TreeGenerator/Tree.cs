@@ -25,33 +25,26 @@ public class Tree {
 		Mesh mesh = new Mesh();
 		mesh.subMeshCount = 2;
 
-		List<Vector3> branchVertices = new List<Vector3>();
-		List<Vector3> branchNormals = new List<Vector3>();
+		List<Vector3> vertices = new List<Vector3>();
+		List<Vector2> uvs = new List<Vector2>();
+		List<Vector3> normals = new List<Vector3>();
 		List<int> branchTriangles = new List<int>();
-		List<Vector3> leafVertices = new List<Vector3>();
 		List<int> leafTriangles = new List<int>();
-		List<Vector2> leafUVs = new List<Vector2>();
 		foreach (TreeBranch branch in Branches) {
-			int offset = branchVertices.Count;
-			branchVertices.AddRange(branch.GetVertices());
-			branchNormals.AddRange(branch.GetNormals());
-			foreach (int vertexIndex in branch.GetTriangles()) {
-				branchTriangles.Add(offset + vertexIndex);
-			}
-			branch.GenerateLeafMeshData(leafVertices, leafTriangles, leafUVs);
+			branch.GenerateBranchMeshData(vertices, branchTriangles, uvs, normals);
+			branch.GenerateLeafMeshData(vertices, leafTriangles, uvs, normals);
 		}
-
-		branchVertices.AddRange(leafVertices);
-		mesh.vertices = branchVertices.ToArray();
-		mesh.triangles = branchTriangles.ToArray();
-		mesh.normals = branchNormals.ToArray();
 		
-		mesh.SetVertices(leafVertices, 1, 1);
+		mesh.vertices = vertices.ToArray();
+		mesh.SetTriangles(branchTriangles, 0);
+		mesh.SetTriangles(leafTriangles, 1);
+		mesh.normals = normals.ToArray();
+		mesh.uv = uvs.ToArray();
 		
-		Vector2[] uv = new Vector2[branchVertices.Count];
-		for (int i = 0; i < uv.Length; i++) {
-			uv[i] = new Vector2(i / (float) uv.Length, i / (float) uv.Length);
-		}
+		// apply
+		mesh.RecalculateBounds();
+		mesh.RecalculateTangents();
+		mesh.UploadMeshData(true);
 		
 		return mesh;
 	}

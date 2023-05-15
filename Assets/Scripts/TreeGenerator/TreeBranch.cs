@@ -74,9 +74,11 @@ public class TreeBranch {
 			// TODO: handle leaf generation
 			if (nextNode.Radius <= branchConfig.LeafSpawnRadiusThreshold && Random.value <= branchConfig.LeafProbability) {
 				int leafCount = branchConfig.LeafCount;
-				// Vector3[] leafDirections = branchConfig.GenerateLeafDirections(leafCount);
+				Vector3[] leafDirections = branchConfig.GenerateLeafDirections(leafCount);
 				for (int i = 0; i < leafCount; i++) {
 					radius -= branchConfig.LeafRadiusDecay;
+					TreeLeaf leaf = new TreeLeaf(nextNode, leafDirections[i], branchConfig.LeafSize, treeConfig);
+					nextNode.Leaves.Add(leaf);
 				}
 			}
 			
@@ -102,11 +104,19 @@ public class TreeBranch {
 		}
 		return subBranches;
 	}
-	
-	public List<Vector3> GetVertices() {
-		List<Vector3> vertices = new List<Vector3>();
-		if (Nodes.Count == 0) return vertices;
 
+	public List<Vector3> GetNormals() {
+		List<Vector3> normals = new List<Vector3>();
+		if (Nodes.Count == 0) return normals;
+
+		return normals;
+	}
+
+	public void GenerateBranchMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
+		if (Nodes.Count == 0) return;
+		int vertexOffset = vertices.Count;
+
+		// generate vertices (creates a circle for each node, including the origin), uvs and normals
 		for (int i = -1; i < Nodes.Count; i++) {
 			TreeBranchNode node;
 			float radius;
@@ -119,57 +129,38 @@ public class TreeBranch {
 				radius = node.Radius;
 			}
 			foreach (Vector3 circleVertex in CIRCLE_VERTICES) {
-				vertices.Add(node.WorldPosition + node.WorldRotation * circleVertex * radius);
+				Quaternion worldRotation = node.WorldRotation;
+				vertices.Add(node.WorldPosition + worldRotation * circleVertex * radius);
+				uvs.Add(new Vector2(Random.value, Random.value)); // TODO: generate proper uvs
+				normals.Add(worldRotation * circleVertex);
 			}
 		}
-
-		return vertices;
-	}
-	
-	public List<int> GetTriangles() {
-		List<int> triangles = new List<int>();
-		if (Nodes.Count == 0) return triangles;
-
+		
+		// generate two triangles for each vertex on each node (connecting to previous node or branch origin if first node)
 		int nodeSize = CIRCLE_VERTICES.Length;
 		for (int i = 0; i < Nodes.Count; i++) {
-			// generate two triangles for each vertex on the current node (connecting to previous node or branch origin if first node)
 			for (int j = 0; j < nodeSize; j++) {
 				int a = i * nodeSize + j; // current vertex (j) on previous node
 				int b = i * nodeSize + (j + 1) % nodeSize; // next vertex on previous node
 				int c = (i + 1) * nodeSize + j; // current vertex (j) on same node (i)
 				int d = (i + 1) * nodeSize + (j + 1) % nodeSize; // next vertex on same node (i)
 				
-				triangles.Add(a);
-				triangles.Add(b);
-				triangles.Add(c);
+				triangles.Add(a + vertexOffset);
+				triangles.Add(b + vertexOffset);
+				triangles.Add(c + vertexOffset);
 				
-				triangles.Add(b);
-				triangles.Add(d);
-				triangles.Add(c);
+				triangles.Add(b + vertexOffset);
+				triangles.Add(d + vertexOffset);
+				triangles.Add(c + vertexOffset);
 			}
 		}
-
-		return triangles;
 	}
 
-	public List<Vector3> GetNormals() {
-		List<Vector3> normals = new List<Vector3>();
-		if (Nodes.Count == 0) return normals;
-
-		for (int i = -1; i < Nodes.Count; i++) {
-			TreeBranchNode node = i < 0 ? Origin : Nodes[i];
-			foreach (Vector3 circleVertex in CIRCLE_VERTICES) {
-				normals.Add(node.WorldRotation * circleVertex);
-			}
-		}
-
-		return normals;
-	}
-
-	public void GenerateLeafMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs) {
+	public void GenerateLeafMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
 		foreach (TreeBranchNode node in Nodes) {
 			foreach (TreeLeaf leaf in node.Leaves) {
-				leaf.GenerateMeshData(vertices, triangles, uvs);
+				Debug.Log($"Generating leaf mesh data for leaf[{leaf.Size}] at {node.WorldPosition} + {leaf.WorldRotation * Vector3.up}");
+				leaf.GenerateMeshData(vertices, triangles, uvs, normals);
 			}
 		}
 	}

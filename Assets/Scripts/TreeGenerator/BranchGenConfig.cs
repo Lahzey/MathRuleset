@@ -36,6 +36,13 @@ public class BranchGenConfig : ScriptableObject {
 	[SerializeField] private Vector2 leafSpawnRadiusThreshold = new Vector2(0.05f, 0.1f);
 	public float LeafSpawnRadiusThreshold => Random.Range(leafSpawnRadiusThreshold.x, leafSpawnRadiusThreshold.y);
 	
+	[SerializeField] private Vector2 minLeafSize = new Vector2(0.1f, 0.2f);
+	[SerializeField] private Vector2 maxLeafSize = new Vector2(0.1f, 0.2f);
+	public Vector2 LeafSize => new Vector2(
+		Random.Range(minLeafSize.x, maxLeafSize.x),
+		Random.Range(minLeafSize.y, maxLeafSize.y)
+	);
+	
 	[SerializeField] private Vector2 leafProbabilityRange = new Vector2(0.3f, 1f);
 	public float LeafProbability => Random.Range(leafProbabilityRange.x, leafProbabilityRange.y);
 	
@@ -44,6 +51,9 @@ public class BranchGenConfig : ScriptableObject {
 	
 	[SerializeField] private Vector2 leafRadiusDecayRange = new Vector2(0.005f, 0.01f);
 	public float LeafRadiusDecay => Random.Range(leafRadiusDecayRange.x, leafRadiusDecayRange.y);
+	
+	[SerializeField] private Vector2 leafAngleRange = new Vector2(-70f, 70f);
+	[SerializeField] private AnimationCurve leafPositionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 	
 	[Header("Branching")]
 	[SerializeField] private Vector2 minBranchingHeightRange = new Vector2(0f, 0f);
@@ -59,13 +69,21 @@ public class BranchGenConfig : ScriptableObject {
 	[SerializeField] private AnimationCurve branchingPositionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
 	public Vector3[] GenerateBranchingDirections(int count) {
+		return GenerateDirections(branchingAngleRange, branchingPositionCurve, count);
+	}
+	
+	public Vector3[] GenerateLeafDirections(int count) {
+		return GenerateDirections(leafAngleRange, leafPositionCurve, count);
+	}
+	
+	private Vector3[] GenerateDirections(Vector2 angleRange, AnimationCurve positionCurve, int count) {
 		Vector3[] directions = new Vector3[count];
 		float timeSectorSize = 1 / count; // distribute the time on an animation curve (0-1) into sectors for each angle
 		for (int i = 0; i < count; i++) {
 			float time = timeSectorSize * i + Random.Range(0, timeSectorSize); // randomize the time within the sector
-			float curveValue = branchingPositionCurve.Evaluate(time);
+			float curveValue = positionCurve.Evaluate(time);
 			Vector3 direction = Vector3.right;
-			direction = Quaternion.Euler(0f, curveValue * 360f, Random.Range(branchingAngleRange.x, branchingAngleRange.y)) * direction;
+			direction = Quaternion.Euler(0f, curveValue * 360f, Random.Range(angleRange.x, angleRange.y)) * direction;
 			directions[i] = direction;
 		}
 		return directions;

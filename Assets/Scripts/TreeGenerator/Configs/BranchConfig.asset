@@ -19,12 +19,39 @@ MonoBehaviour:
   nodeFrequencyRange: {x: 0.3, y: 1}
   nodeXAngleRange: {x: -15, y: 15}
   nodeZAngleRange: {x: -15, y: 15}
-  MaxNodeAngleDeviation: {x: -45, y: 45}
+  MaxNodeXAngleDeviation: {x: -45, y: 45}
+  MaxNodeZAngleDeviation: {x: -45, y: 45}
   leafSpawnRadiusThreshold: {x: 0.05, y: 0.1}
+  minLeafSize: {x: 0.1, y: 0.15}
+  maxLeafSize: {x: 0.05, y: 0.075}
   leafProbabilityRange: {x: 0.3, y: 1}
   leafCountRange: {x: 1, y: 2}
   leafRadiusDecayRange: {x: 0.005, y: 0.01}
-  branchingRadiusThreshold: {x: 0.05, y: 0.1}
+  leafAngleRange: {x: -70, y: 70}
+  leafPositionCurve:
+    serializedVersion: 2
+    m_Curve:
+    - serializedVersion: 3
+      time: 0
+      value: 0
+      inSlope: 0
+      outSlope: 1
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    - serializedVersion: 3
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 0
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0
+      outWeight: 0
+    m_PreInfinity: 2
+    m_PostInfinity: 2
+    m_RotationOrder: 4
   minBranchingHeightRange: {x: 0.2, y: 1}
   branchingProbabilityRange: {x: 0.3, y: 1}
   branchingCountRange: {x: 1, y: 2}
