@@ -11,6 +11,7 @@ public class TreeGenerator : MonoBehaviour {
 	[SerializeField] private bool drawBranchOrigins;
 	[SerializeField] private bool drawBranchNodes;
 	[SerializeField] private bool drawBranchDirections;
+	[SerializeField] private bool drawLeafTriangles;
 	
 	private Tree tree;
 
@@ -24,11 +25,9 @@ public class TreeGenerator : MonoBehaviour {
 	private void OnDrawGizmos() {
 		if (tree == null) return;
 		
-		// draw skeleton
 		DrawSkeleton();
-		
-		// draw shell
 		DrawShell();
+		DrawLeafTriangles();
 	}
 
 	private void DrawSkeleton() {
@@ -55,6 +54,33 @@ public class TreeGenerator : MonoBehaviour {
 			Handles.color = Color.green;
 			foreach (TreeBranchNode node in branch.Nodes) {
 				Handles.DrawWireDisc(node.WorldPosition, node.WorldRotation * Vector3.up, node.Radius);
+			}
+		}
+	}
+	
+	private void DrawLeafTriangles() {
+		if (!drawLeafTriangles) return;
+		foreach (TreeBranch branch in tree.Branches) {
+			foreach (TreeBranchNode node in branch.Nodes) {
+				foreach (TreeLeaf leaf in node.Leaves) {
+					Quaternion rotation = leaf.WorldRotation;
+					Vector3 originPosition = leaf.Origin.WorldPosition + rotation * new Vector3(0, leaf.Origin.Radius, 0);
+					Vector3 size = leaf.Size;
+					Vector3 bottomLeft = originPosition + rotation * new Vector3(-size.x / 2, 0, 0);
+					Vector3 bottomRight = originPosition + rotation * new Vector3(size.x / 2, 0, 0);
+					Vector3 topLeft = originPosition + rotation * new Vector3(-size.x / 2, size.y, 0);
+					Vector3 topRight = originPosition + rotation * new Vector3(size.x / 2, size.y, 0);
+					
+					
+					Handles.color = new Color(0.95f, 1f, 0.38f);
+					Handles.DrawLine(bottomRight, bottomLeft);
+					Handles.DrawLine(bottomLeft, topRight);
+					Handles.DrawLine(topRight, bottomRight);
+					Handles.color = new Color(1f, 0.55f, 0.2f);
+					Handles.DrawLine(bottomLeft, topLeft);
+					Handles.DrawLine(topLeft, topRight);
+					Handles.DrawLine(topRight, bottomLeft);
+				}
 			}
 		}
 	}

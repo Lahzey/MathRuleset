@@ -19,14 +19,14 @@ public class TreeLeaf {
 	}
 	
 	public void GenerateMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
-		Vector3 originPosition = Origin.WorldPosition;
 		Quaternion rotation = WorldRotation;
+		Vector3 originPosition = Origin.WorldPosition + rotation * new Vector3(0, Origin.Radius, 0); // TODO: find a way to go out of node radius on the node normal, not the full direction of the leaf
 		int vertexOffset = vertices.Count;
 		
 		// generate vertices of square going up from origin (x centered at origin)
-		Vector3 bottomLeft = originPosition;
-		Vector3 bottomRight = originPosition + rotation * new Vector3(-Size.x / 2, 0, 0);
-		Vector3 topLeft = originPosition + rotation * new Vector3(0, Size.y, 0);
+		Vector3 bottomLeft = originPosition + rotation * new Vector3(-Size.x / 2, 0, 0);
+		Vector3 bottomRight = originPosition + rotation * new Vector3(Size.x / 2, 0, 0);
+		Vector3 topLeft = originPosition + rotation * new Vector3(-Size.x / 2, Size.y, 0);
 		Vector3 topRight = originPosition + rotation * new Vector3(Size.x / 2, Size.y, 0);
 		vertices.Add(bottomLeft);
 		vertices.Add(bottomRight);

@@ -447,10 +447,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   config: {fileID: 11400000, guid: 65bf30fb0be8cef49abf95466799557c, type: 2}
   seed: 0
-  drawSkeleton: 1
-  drawBranchOrigins: 1
+  drawSkeleton: 0
+  drawBranchOrigins: 0
   drawBranchNodes: 1
-  drawBranchDirections: 1
+  drawBranchDirections: 0
+  drawLeafTriangles: 1
 --- !u!33 &1750074818
 MeshFilter:
   m_ObjectHideFlags: 0
