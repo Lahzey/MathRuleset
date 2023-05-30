@@ -16,38 +16,65 @@ MonoBehaviour:
   radiusRange: {x: 1, y: 1}
   radiusDecayRange: {x: 0.1, y: 0.4}
   RadiusDecayMode: 0
-  nodeFrequencyRange: {x: 0.3, y: 1}
+  nodeFrequencyRange: {x: 1, y: 2}
   nodeXAngleRange: {x: -15, y: 15}
   nodeZAngleRange: {x: -15, y: 15}
   MaxNodeXAngleDeviation: {x: -45, y: 45}
   MaxNodeZAngleDeviation: {x: -45, y: 45}
-  leafSpawnRadiusThreshold: {x: 0.05, y: 0.1}
+  leafSpawnRadiusThreshold: {x: 0.01, y: 0.02}
   minLeafSize: {x: 0.1, y: 0.15}
   maxLeafSize: {x: 0.05, y: 0.075}
   leafProbabilityRange: {x: 0.3, y: 1}
-  leafCountRange: {x: 1, y: 2}
-  leafRadiusDecayRange: {x: 0.005, y: 0.01}
+  leafCountRange: {x: 2, y: 2}
+  leafRadiusDecayRange: {x: 0.001, y: 0.002}
   leafAngleRange: {x: -70, y: 70}
   leafPositionCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0
+      value: 0.99905396
       inSlope: 0
-      outSlope: 1
+      outSlope: 0
       tangentMode: 0
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 1
-      value: 1
-      inSlope: 1
-      outSlope: 0
+      time: 0.45936495
+      value: 1.0027294
+      inSlope: -0.054403417
+      outSlope: -0.054403417
       tangentMode: 0
       weightedMode: 0
-      inWeight: 0
+      inWeight: 0.33333334
+      outWeight: 0.09280424
+    - serializedVersion: 3
+      time: 0.45946845
+      value: 0.49714252
+      inSlope: -2.5685818
+      outSlope: -2.5685818
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.048515793
+    - serializedVersion: 3
+      time: 0.46059847
+      value: 0.0068261623
+      inSlope: -0.057364408
+      outSlope: -0.057364408
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.33333334
+      outWeight: 0.11426238
+    - serializedVersion: 3
+      time: 1.0025098
+      value: 0.0080098165
+      inSlope: -0.000018486742
+      outSlope: -0.000018486742
+      tangentMode: 0
+      weightedMode: 0
+      inWeight: 0.2135544
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2
