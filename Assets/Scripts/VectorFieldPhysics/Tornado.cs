@@ -1,21 +1,23 @@
 ﻿using System;
 using UnityEditor;
 using UnityEngine;
+using UnityEngine.VFX;
 
 namespace VectorFieldPhysics {
+[RequireComponent(typeof(VisualEffect))]
 public class Tornado : MonoBehaviour, VectorField {
-
 	private static readonly Vector3[] DIRECTIONS = { Vector3.left, Vector3.right, Vector3.forward, Vector3.back };
 
 	[SerializeField] private float maxSpeed = 10f;
 	[SerializeField] private float height = 10f;
-	[SerializeField][Range(0, 1)] private float startHeight = 0.1f;
+	[SerializeField] [Range(0, 1)] private float startHeight = 0.1f;
 	[SerializeField] private bool clockwise = true;
-	
+
 	private Vector3 offset = new Vector3(0, 1, 0);
 
 	private void OnValidate() {
 		offset = new Vector3(0, startHeight * height, 0);
+		UpdateVisualEffect();
 	}
 
 	public float GetRadius() => GetRadius(height);
@@ -24,7 +26,6 @@ public class Tornado : MonoBehaviour, VectorField {
 		return GetEyeSize(y) + y * 0.4f; // to be corrected if the GetVector function is changed
 	}
 
-	// the returned vector has components between -1 and 1, where an x and z of +-1 is the max horizontal strength
 	public Vector3 GetVector(Vector3 position) {
 		position += offset;
 		if (position.y <= 0 || position.y > height || (position.x == 0 && position.z == 0)) return Vector3.zero;
@@ -36,32 +37,20 @@ public class Tornado : MonoBehaviour, VectorField {
 		float distToCenter = Mathf.Sqrt(position.x * position.x + position.z * position.z);
 		float distToRingCenter = Mathf.Abs(distToCenter - ringCenter);
 		float distToRingCenterPercent = 1 - Mathf.Min(distToRingCenter / ringThickness, 1);
-		
-		// Vector2 direction = new Vector2(position.z * (clockwise ? 1 : -1), position.x * (clockwise ? -1 : 1)); // creates a circle around 0/0
-		// direction /= distToCenter; // normalize
-		// float turnedToCenter = (distToCenter - ringCenter) / ringThickness * 0.5f; // how much the direction should turn towards the ring center (0 - 0.3), negative if inside the ring so we turn the other way
-		// direction.x = direction.x * (1 - turnedToCenter) + direction.y * turnedToCenter;
-		// direction.y = direction.y * (1 - turnedToCenter) + direction.x * turnedToCenter;
-		// Vector3 unscaledVector = new Vector3(direction.x * componentSize, componentSize / 3, direction.y * componentSize);
-		
+
 		// wind ring
 		Vector2 direction = new Vector2(position.z * (clockwise ? 1 : -1), position.x * (clockwise ? -1 : 1)); // creates a circle around 0/0
 		direction /= distToCenter; // normalize
 		float componentSize = distToRingCenterPercent * maxComponentSize;
 		Vector3 unscaledVector = new Vector3(direction.x * componentSize, 0, direction.y * componentSize);
-		
+
 		// suction towards the center
 		Vector3 suctionToCenter = new Vector3(-position.x / distToCenter, 0, -position.z / distToCenter);
 		float suctionStrength = distToCenter > ringCenter ? LogGrowthConstantFalloff(1 - (distToCenter - ringCenter) / ringThickness, 0.5f, 3f) : 0;
 		unscaledVector += suctionToCenter * (suctionStrength * maxComponentSize);
-		
-		// suction upwards
-		unscaledVector += Vector3.up * (distToRingCenterPercent * 0.5f); // upwards speed can only be 0.5f as fast as the horizontal speed
 
-		// suction (towards the center and up)
-		// Vector3 suctionToCenter = new Vector3(-position.x / distToCenter, 0, -position.z / distToCenter);
-		// Vector3 suctionUp = new Vector3(0, 1, 0);
-		// Vector3 suction = Vector3.Lerp(suctionToCenter, suctionUp, distToRingCenterPercent)  * (maxComponentSize * 0.5f); // using maxComponentSize here as well so suction falls off at the top
+		// suction upwards
+		unscaledVector += Vector3.up * (distToRingCenterPercent * 0.5f * maxComponentSize); // upwards speed can only be 0.5f as fast as the horizontal speed
 
 		return unscaledVector * maxSpeed;
 	}
@@ -70,10 +59,65 @@ public class Tornado : MonoBehaviour, VectorField {
 		return 0.01f + 0.05f * y;
 	}
 
+	private void UpdateVisualEffect() {
+		VisualEffect visualEffect = GetComponent<VisualEffect>();
+		Vector3 resolution = visualEffect.GetVector3("Resolution");
+		Vector3 halfRes = resolution / 2;
+		Vector3Int resInt = new Vector3Int((int)resolution.x, (int)resolution.y, (int)resolution.z);
+
+		Texture3D texture = new Texture3D(resInt.x, resInt.y, resInt.z, TextureFormat.RGBAFloat, false);
+		Vector3[,,] pixels = new Vector3[resInt.x, resInt.y, resInt.z];
+
+		// used to convert image coordinates to world coordinates
+		float diameter = GetRadius(height) * 2;
+		float xMod = diameter / resolution.x;
+		float yMod = (height - offset.y) / resolution.y;
+		float zMod = diameter / resolution.z;
+		
+		// calculate the vector for each pixel and store the min/max values so we can scale the vectors later
+		float minVal = float.MaxValue;
+		float maxVal = -float.MaxValue;
+		for (int x = 0; x < resolution.x; x++) {
+			for (int y = 0; y < resolution.y; y++) {
+				for (int z = 0; z < resolution.z; z++) {
+					Vector3 position = new Vector3((x - halfRes.x) * xMod, y * yMod, (z - halfRes.z) * zMod);
+					Vector3 vector = GetVector(position);
+					if (vector.x > maxVal) maxVal = vector.x;
+					if (vector.y > maxVal) maxVal = vector.y;
+					if (vector.z > maxVal) maxVal = vector.z;
+					if (vector.x < minVal) minVal = vector.x;
+					if (vector.y < minVal) minVal = vector.y;
+					if (vector.z < minVal) minVal = vector.z;
+					pixels[x, y, z] = vector;
+				}
+			}
+		}
+		
+		// scale down the vectors so the max value is 1 (colors only accept values between 0 and 1) and apply them to the texture
+		float scale = maxVal - minVal;
+		for (int x = 0; x < resolution.x; x++) {
+			for (int y = 0; y < resolution.y; y++) {
+				for (int z = 0; z < resolution.z; z++) {
+					Vector3 color = (pixels[x, y, z] - new Vector3(minVal, minVal, minVal)) / scale;
+					texture.SetPixel(x, y, z, new Color(color.x, color.y, color.z));
+				}
+			}
+		}
+		texture.Apply();
+
+		visualEffect.SetTexture("VectorField", texture);
+		visualEffect.SetFloat("VectorFieldScale", scale);
+		visualEffect.SetFloat("VectorFieldOffset", minVal);
+		visualEffect.SetFloat("Height", height - offset.y);
+		visualEffect.SetVector2("RadiusRange", new Vector2(GetRadius(offset.y), GetRadius(height)));
+	}
+
 	private void OnDrawGizmos() {
 		float minY = offset.y;
 		float maxY = height;
 		float effectiveHeight = height - offset.y;
+
+		Gizmos.DrawCube(Vector3.zero, Vector3.one);
 
 		// draw the eye
 		float minEyeSize = GetEyeSize(minY);
@@ -118,6 +162,5 @@ public class Tornado : MonoBehaviour, VectorField {
 	private static float ConvertToLogGrowth(float value, float growth) {
 		return (1 - Mathf.Exp(-growth * value)) / (1 - Mathf.Exp(-growth));
 	}
-
 }
 }
