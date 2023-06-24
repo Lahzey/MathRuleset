@@ -1,5 +1,6 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.Rendering;
 
 namespace DefaultNamespace.TreeGenerator {
 public class Tree {
@@ -22,8 +23,6 @@ public class Tree {
 	}
 
 	public Mesh GenerateMesh() {
-		Mesh mesh = new Mesh();
-		mesh.subMeshCount = 2;
 
 		List<Vector3> vertices = new List<Vector3>();
 		List<Vector2> uvs = new List<Vector2>();
@@ -34,6 +33,10 @@ public class Tree {
 			branch.GenerateBranchMeshData(vertices, branchTriangles, uvs, normals);
 			branch.GenerateLeafMeshData(vertices, leafTriangles, uvs, normals);
 		}
+
+		Mesh mesh = new Mesh();
+		mesh.indexFormat = vertices.Count > 65000 ? IndexFormat.UInt32 : IndexFormat.UInt16;
+		mesh.subMeshCount = 2;
 		
 		mesh.vertices = vertices.ToArray();
 		mesh.SetTriangles(branchTriangles, 0);

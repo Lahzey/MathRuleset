@@ -78,12 +78,16 @@ public class BranchGenConfig : ScriptableObject {
 	
 	private Vector3[] GenerateDirections(Vector2 angleRange, AnimationCurve positionCurve, int count) {
 		Vector3[] directions = new Vector3[count];
-		float timeSectorSize = 1 / count; // distribute the time on an animation curve (0-1) into sectors for each angle
+		if (count == 0) return directions; // early return safes performance and prevents divide-by-zero
+		
+		float timeSectorSize = 1f / count; // distribute the time on an animation curve (0-1) into sectors for each angle
 		for (int i = 0; i < count; i++) {
 			float time = timeSectorSize * i + Random.Range(0, timeSectorSize); // randomize the time within the sector
 			float curveValue = positionCurve.Evaluate(time);
 			Vector3 direction = Vector3.right;
-			direction = Quaternion.Euler(0f, curveValue * 360f, Random.Range(angleRange.x, angleRange.y)) * direction;
+			// pretty sure rotating with default order (z before y) would mess with the result
+			direction = Quaternion.Euler(0, curveValue * 360f, 0) * direction;
+			direction = Quaternion.Euler(0, 0, Random.Range(angleRange.x, angleRange.y)) * direction;
 			directions[i] = direction;
 		}
 		return directions;

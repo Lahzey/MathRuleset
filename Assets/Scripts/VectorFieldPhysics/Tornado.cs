@@ -1,4 +1,6 @@
 ﻿using System;
+using System.Collections;
+using System.Threading;
 using UnityEditor;
 using UnityEngine;
 using UnityEngine.VFX;
@@ -12,8 +14,11 @@ public class Tornado : MonoBehaviour, VectorField {
 	[SerializeField] private float height = 10f;
 	[SerializeField] [Range(0, 1)] private float startHeight = 0.1f;
 	[SerializeField] private bool clockwise = true;
+	[SerializeField] private Texture3D fieldSample;
 
 	private Vector3 offset = new Vector3(0, 1, 0);
+
+	private bool IsVFXLoaded = false;
 
 	private void OnValidate() {
 		offset = new Vector3(0, startHeight * height, 0);
@@ -60,6 +65,7 @@ public class Tornado : MonoBehaviour, VectorField {
 	}
 
 	private void UpdateVisualEffect() {
+		IsVFXLoaded = true;
 		VisualEffect visualEffect = GetComponent<VisualEffect>();
 		Vector3 resolution = visualEffect.GetVector3("Resolution");
 		Vector3 halfRes = resolution / 2;
@@ -110,6 +116,10 @@ public class Tornado : MonoBehaviour, VectorField {
 		visualEffect.SetFloat("VectorFieldOffset", minVal);
 		visualEffect.SetFloat("Height", height - offset.y);
 		visualEffect.SetVector2("RadiusRange", new Vector2(GetRadius(offset.y), GetRadius(height)));
+
+		if (fieldSample != null) {
+			// TODO: figure out how to overwrite texture data to cache for startup
+		}
 	}
 
 	private void OnDrawGizmos() {

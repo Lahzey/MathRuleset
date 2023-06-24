@@ -1,5 +1,7 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace DefaultNamespace.TreeGenerator {
 public class TreeBranch {
@@ -31,14 +33,21 @@ public class TreeBranch {
 		
 		BranchGenConfig branchConfig = treeConfig[depth];
 		bool canSpawnSubBranches = depth < treeConfig.BranchingDepth;
-		float minBranchingHeight = branchConfig.MinBranchingHeight + origin.Radius;
+		float minBranchingHeight = branchConfig.MinBranchingHeight * radius; // min branching height relative
+		minBranchingHeight += origin.Radius * 2; // offset min branching height to make sure it does not intersect origin branch
 		float maxLength = branchConfig.MaxLength;
 
 		Vector3 currentNodePosition = Vector3.zero; // will apply origin position later when applying rotation
 		Vector3 angleToNextNode = Vector3.zero;
 		float branchLength = 0;
-		
+
+		int loopCount = 0;
 		while (radius > 0 && branchLength < maxLength) {
+			// safety so infinitely looping settings do not cause a unity crash
+			loopCount++;
+			if (loopCount > 1000)
+				throw new ArgumentException("TreeGen settings may an infinite loop, gave up after 1000 nodes.");
+
 			// position the next node
 			float distanceToNextNode = 1 / (branchConfig.NodeFrequency / radius);
 			Quaternion rotation = Quaternion.Euler(angleToNextNode);
@@ -61,7 +70,7 @@ public class TreeBranch {
 					float branchRadius = treeConfig[depth + 1].Radius;
 					float branchArea = 0;
 					if (branchConfig.RadiusDecayMode.IsPerBranch()) radius = ReduceRadiusByAreaPart(radius, branchConfig.RadiusDecay, out branchArea);
-					if (branchConfig.RadiusDecayMode == RadiusDecayMode.PER_BRANCH_TRANSFER_RADIUS) {
+					if (branchConfig.RadiusDecayMode == RadiusDecayMode.PER_BRANCH_TRANSFER_RADIUS) {	
 						branchRadius *= ToRadius(branchArea);
 					}
 					
@@ -71,7 +80,7 @@ public class TreeBranch {
 				}
 			}
 			
-			// TODO: handle leaf generation
+			// handle leaf generation
 			if (nextNode.Radius <= branchConfig.LeafSpawnRadiusThreshold && Random.value <= branchConfig.LeafProbability) {
 				int leafCount = branchConfig.LeafCount;
 				Vector3[] leafDirections = branchConfig.GenerateLeafDirections(leafCount);
@@ -81,7 +90,7 @@ public class TreeBranch {
 					nextNode.Leaves.Add(leaf);
 				}
 			}
-			
+
 			// calculations for next iteration
 			currentNodePosition = nextNodePosition;
 			Vector3 nodeAngle = branchConfig.NodeAngle;
@@ -91,7 +100,7 @@ public class TreeBranch {
 			angleToNextNode.z = Mathf.Clamp(angleToNextNode.z, branchConfig.MaxNodeZAngleDeviation.x, branchConfig.MaxNodeZAngleDeviation.y);
 		}
 		
-		// TODO: create topping for the branch
+		// could also create topping for branch here, but usually branches get very small at the end so it's fine
 	}
 
 	public List<TreeBranch> GetSubBranches() {
@@ -145,6 +154,8 @@ public class TreeBranch {
 				int c = (i + 1) * nodeSize + j; // current vertex (j) on same node (i)
 				int d = (i + 1) * nodeSize + (j + 1) % nodeSize; // next vertex on same node (i)
 				
+				// this stuff is counter clockwise, but we current show both sides anyways. Fix later maybe?
+				
 				triangles.Add(a + vertexOffset);
 				triangles.Add(b + vertexOffset);
 				triangles.Add(c + vertexOffset);
@@ -159,9 +170,8 @@ public class TreeBranch {
 	public void GenerateLeafMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
 		foreach (TreeBranchNode node in Nodes) {
 			foreach (TreeLeaf leaf in node.Leaves) {
-				Debug.Log($"Generating leaf mesh data for leaf[{leaf.Size}] at {node.WorldPosition} + {leaf.WorldRotation * Vector3.up}");
 				leaf.GenerateMeshData(vertices, triangles, uvs, normals);
-			}
+			}	
 		}
 	}
 

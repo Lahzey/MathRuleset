@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 2c009594996f478783ce0c352ed6624e, type: 3}
   m_Name: TreeConfig
   m_EditorClassIdentifier: 
-  branchingDepthRange: {x: 10, y: 10}
+  branchingDepthRange: {x: 30, y: 30}
   branchConfigs:
   - {fileID: 11400000, guid: 09261cbec028d63429b19ef91372f8cb, type: 2}
   - {fileID: 11400000, guid: aed76bb852f513549a8c26f7e938d3fb, type: 2}

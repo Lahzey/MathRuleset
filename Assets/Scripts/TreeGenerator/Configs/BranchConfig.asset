@@ -22,11 +22,11 @@ MonoBehaviour:
   MaxNodeXAngleDeviation: {x: -45, y: 45}
   MaxNodeZAngleDeviation: {x: -45, y: 45}
   leafSpawnRadiusThreshold: {x: 0.01, y: 0.02}
-  minLeafSize: {x: 0.1, y: 0.15}
-  maxLeafSize: {x: 0.05, y: 0.075}
-  leafProbabilityRange: {x: 0.3, y: 1}
-  leafCountRange: {x: 2, y: 2}
-  leafRadiusDecayRange: {x: 0.001, y: 0.002}
+  minLeafSize: {x: 0.1, y: 0.1}
+  maxLeafSize: {x: 0.5, y: 0.5}
+  leafProbabilityRange: {x: 1, y: 1}
+  leafCountRange: {x: 2, y: 4}
+  leafRadiusDecayRange: {x: 0.0003, y: 0.001}
   leafAngleRange: {x: -70, y: 70}
   leafPositionCurve:
     serializedVersion: 2
@@ -79,10 +79,10 @@ MonoBehaviour:
     m_PreInfinity: 2
     m_PostInfinity: 2
     m_RotationOrder: 4
-  minBranchingHeightRange: {x: 0.2, y: 1}
-  branchingProbabilityRange: {x: 0.3, y: 1}
+  minBranchingHeightRange: {x: 0.5, y: 1.5}
+  branchingProbabilityRange: {x: 0.2, y: 0.5}
   branchingCountRange: {x: 1, y: 2}
-  branchingAngleRange: {x: -70, y: 70}
+  branchingAngleRange: {x: -30, y: 70}
   branchingPositionCurve:
     serializedVersion: 2
     m_Curve:
