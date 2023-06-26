@@ -26,7 +26,7 @@ public class FireBomb : MonoBehaviour {
 		Plane plane = new Plane(floor.rotation * Vector3.up, floor.position);
 		if (plane.GetSide(transform.position)) return;
 		
-		// below floor, create scorch mark decal
+		// create scorch mark decal
 		Vector3 scorchedPos = plane.ClosestPointOnPlane(transform.position);
 		GameObject scorchMark = Instantiate(scorchMarkPrefab, scorchedPos, Quaternion.identity);
 		scorchMark.transform.localScale = Vector3.one * scorchMarkRadius;
@@ -36,7 +36,7 @@ public class FireBomb : MonoBehaviour {
 	private void CheckTornadoInteraction() {
 		if (tornado == null) return;
 
-		// check if current position is inside tornado
+		// check if current position is inside tornado (and return if not)
 		Vector2 tornadoPos = new Vector2(tornado.transform.position.x, tornado.transform.position.z);
 		Vector2 pos = new Vector2(transform.position.x, transform.position.z);
 		float distSqr = (tornadoPos - pos).sqrMagnitude;
@@ -44,10 +44,10 @@ public class FireBomb : MonoBehaviour {
 		tornadoRadiusSqr *= tornadoRadiusSqr;
 		if (!(tornadoRadiusSqr > distSqr)) return;
 		
-		// inside tornado, copy colors from this vfx to tornado vfx
+		// copy colors from this vfx to tornado vfx
 		VisualEffect tornadoVfx = tornado.GetComponent<VisualEffect>();
 		VisualEffect thisVfx = GetComponent<VisualEffect>();
-		tornadoVfx.SetGradient("colors", thisVfx.GetGradient("colors"));
+		tornadoVfx.SetGradient("Colors", thisVfx.GetGradient("Colors"));
 		tornado = null; // no need to keep checking now, might remove later if tornado can be reset
 	}
 	
