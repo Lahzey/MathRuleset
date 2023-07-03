@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -22,10 +23,12 @@ public class TreeBranch {
 
 	public readonly List<TreeBranchNode> Nodes = new List<TreeBranchNode>();
 	
+	private int leafCount = 0; // saves some performance when generating the mesh as we do not need loops to calculate the array sizes
 	
 	public TreeBranch(TreeBranchNode origin, Vector3 direction, float radius, TreeGenConfig treeConfig, int depth) {
 		Origin = origin;
-		LocalRotation = Quaternion.FromToRotation(Vector3.up, direction);
+		Quaternion forwardCorrection = Quaternion.AngleAxis(Vector3.Angle(Vector3.forward, new Vector3(direction.x, 0, direction.z)), Vector3.up); // rotates the forward towards direction, so when we tilt the branch later, the forward will be tilted downwards
+		LocalRotation = forwardCorrection * Quaternion.AngleAxis(Vector3.Angle(Vector3.up, direction), Vector3.Cross(Vector3.up, direction));
 		WorldRotation = origin.Branch?.WorldRotation * LocalRotation ?? LocalRotation;
 		StartRadius = radius;
 		Depth = depth;
@@ -90,6 +93,7 @@ public class TreeBranch {
 					TreeLeaf leaf = new TreeLeaf(nextNode, leafDirections[i], branchConfig.LeafSize, treeConfig);
 					nextNode.Leaves.Add(leaf);
 				}
+				this.leafCount += leafCount;
 			}
 
 			// calculations for next iteration
@@ -104,31 +108,30 @@ public class TreeBranch {
 		// could also create topping for branch here, but usually branches get very small at the end so it's fine
 	}
 
-	public List<TreeBranch> GetSubBranches() {
-		List<TreeBranch> subBranches = new List<TreeBranch>();
+	public void GetSubBranches(List<TreeBranch> subBranches) {
 		foreach (TreeBranchNode node in Nodes) {
 			foreach (TreeBranch branch in node.SubBranches) {
 				subBranches.Add(branch);
-				subBranches.AddRange(branch.GetSubBranches());
+				branch.GetSubBranches(subBranches);
 			}
 		}
-		return subBranches;
+	}
+	
+	public void GetMeshArraySizes(out int vertexCount, out int branchTriangleCount, out int leafTriangleCount) {
+		int nodeCount = Nodes.Count;
+		vertexCount = (nodeCount + 1) * CIRCLE_VERTICES.Length + leafCount * 4;
+		branchTriangleCount = nodeCount * CIRCLE_VERTICES.Length * 6;
+		leafTriangleCount = leafCount * 6;
 	}
 
-	public List<Vector3> GetNormals() {
-		List<Vector3> normals = new List<Vector3>();
-		if (Nodes.Count == 0) return normals;
-
-		return normals;
-	}
-
-	public void GenerateBranchMeshData(ICollection<Vector3> vertices, ICollection<int> triangles, ICollection<Vector2> uvs, ICollection<Vector3> normals) {
-		if (Nodes.Count == 0) return;
-		int vertexOffset = vertices.Count;
+	public int GenerateBranchMeshData(Vector3[] vertices, List<int> triangles, Vector2[] uvs, Vector3[] normals, int vertexOffset) {
+		if (Nodes.Count == 0) return 0;
+		int nodeSize = CIRCLE_VERTICES.Length;
 
 		// generate vertices (creates a circle for each node, including the origin), uvs and normals
+		int vertexIndex = vertexOffset;
+		TreeBranchNode node;
 		for (int i = -1; i < Nodes.Count; i++) {
-			TreeBranchNode node;
 			float radius;
 			if (i < 0) {
 				node = Origin;
@@ -138,16 +141,18 @@ public class TreeBranch {
 				node = Nodes[i];
 				radius = node.Radius;
 			}
-			foreach (Vector3 circleVertex in CIRCLE_VERTICES) {
+
+			for (int j = 0; j < nodeSize; j++) {
+				Vector3 circleVertex = CIRCLE_VERTICES[j];
 				Quaternion worldRotation = node.WorldRotation;
-				vertices.Add(node.WorldPosition + worldRotation * circleVertex * radius);
-				uvs.Add(new Vector2(0.5f, 0.5f)); // TODO: generate proper uvs
-				normals.Add(worldRotation * circleVertex);
+				vertices[vertexIndex] = node.WorldPosition + worldRotation * circleVertex * radius;
+				uvs[vertexIndex] = new Vector2(0.5f, 0.5f); // TODO: generate proper uvs
+				normals[vertexIndex] = worldRotation * circleVertex;
+				vertexIndex++;
 			}
 		}
 		
 		// generate two triangles for each vertex on each node (connecting to previous node or branch origin if first node)
-		int nodeSize = CIRCLE_VERTICES.Length;
 		for (int i = 0; i < Nodes.Count; i++) {
 			for (int j = 0; j < nodeSize; j++) {
 				int a = i * nodeSize + j; // current vertex (j) on previous node
@@ -166,14 +171,19 @@ public class TreeBranch {
 				triangles.Add(c + vertexOffset);
 			}
 		}
-	}
 
-	public void GenerateLeafMeshData(ICollection<Vector3> vertices, ICollection<int> triangles, ICollection<Vector2> uvs, ICollection<Vector3> normals) {
-		foreach (TreeBranchNode node in Nodes) {
-			foreach (TreeLeaf leaf in node.Leaves) {
-				leaf.GenerateMeshData(vertices, triangles, uvs, normals);
-			}	
+		return vertexIndex;
+	}
+	
+	public int GenerateLeafMeshData(Vector3[] vertices, List<int> triangles, Vector2[] uvs, Vector3[] normals, int vertexOffset) {
+		TreeBranchNode node;
+		for (int i = 0; i < Nodes.Count; i++) {
+			node = Nodes[i];
+			for (int j = 0; j < node.Leaves.Count; j++) {
+				vertexOffset = node.Leaves[j].GenerateMeshData(vertices, triangles, uvs, normals, vertexOffset);
+			}
 		}
+		return vertexOffset;
 	}
 
 	private static float ReduceRadiusByAreaPart(float radius, float areaPart, out float reducedArea) {

@@ -83,12 +83,8 @@ public class BranchGenConfig : ScriptableObject {
 		float timeSectorSize = 1f / count; // distribute the time on an animation curve (0-1) into sectors for each angle
 		for (int i = 0; i < count; i++) {
 			float time = timeSectorSize * i + Random.Range(0, timeSectorSize); // randomize the time within the sector
-			float curveValue = positionCurve.Evaluate(time);
-			Vector3 direction = Vector3.right;
-			// pretty sure rotating with default order (z before y) would mess with the result
-			direction = Quaternion.Euler(0, curveValue * 360f, 0) * direction;
-			direction = Quaternion.Euler(0, 0, Random.Range(angleRange.x, angleRange.y)) * direction;
-			directions[i] = direction;
+			float circlePos = (positionCurve.Evaluate(time) + 0.25f) * Mathf.PI * 2; // evaluate the curve and offset by 0.25 to have angle 0 point to the right
+			directions[i] = new Vector3(Mathf.Sin(circlePos), 0, Mathf.Cos(circlePos)); // see SteeringBehaviour.Wander for source
 		}
 		return directions;
 	}

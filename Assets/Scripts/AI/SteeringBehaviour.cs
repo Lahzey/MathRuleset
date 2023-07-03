@@ -69,11 +69,9 @@ public class SteeringBehaviour {
 			if (origin == Vector3.zero) origin = self.position; // a bit hacky, maybe find a better way to initialize origin
 			
 			circlePos += (Random.value * 2 - 1) * wanderJitter;
-			while (circlePos < 0) circlePos += 1000; // prevent negative values because C# modulo is not a modulo but a remainder
-			circlePos %= 1;
 			
-			// get position on unit circle at angle circlePos (https://math.stackexchange.com/questions/260096/find-the-coordinates-of-a-point-on-a-circle)
-			Vector3 circlePosition = new Vector3(Mathf.Sin(circlePos * 360), 0, Mathf.Cos(circlePos * 360));
+			float angle = circlePos * Mathf.PI * 2;
+			Vector3 circlePosition = new Vector3(Mathf.Sin(angle), 0, Mathf.Cos(angle));
 			
 			Vector3 wanderTarget = origin + circlePosition * wanderRadius;
 			return Seek(self, wanderTarget, velocity, maxSpeed);
