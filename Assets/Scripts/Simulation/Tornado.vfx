@@ -20,7 +20,7 @@ MonoBehaviour:
     x: -997
     y: -190
     width: 2362
-    height: 2327
+    height: 2328
 --- !u!114 &114350483966674976
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -7073,7 +7073,7 @@ MonoBehaviour:
   - {fileID: 8926484042661615236}
   m_ExposedName: Colors
   m_Exposed: 1
-  m_Order: 8
+  m_Order: 6
   m_Category: 
   m_Min:
     m_Type:

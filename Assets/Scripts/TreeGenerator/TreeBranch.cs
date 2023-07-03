@@ -15,7 +15,7 @@ public class TreeBranch {
 	
 	public readonly TreeBranchNode Origin;
 	private readonly Quaternion LocalRotation;
-	public Quaternion WorldRotation => Origin.Branch?.WorldRotation * LocalRotation ?? LocalRotation;
+	public readonly Quaternion WorldRotation;
 	public readonly float StartRadius;
 
 	public readonly int Depth; // 0 = trunk, 1 = first branch, 2 = second branch, etc.
@@ -26,6 +26,7 @@ public class TreeBranch {
 	public TreeBranch(TreeBranchNode origin, Vector3 direction, float radius, TreeGenConfig treeConfig, int depth) {
 		Origin = origin;
 		LocalRotation = Quaternion.FromToRotation(Vector3.up, direction);
+		WorldRotation = origin.Branch?.WorldRotation * LocalRotation ?? LocalRotation;
 		StartRadius = radius;
 		Depth = depth;
 		
@@ -121,7 +122,7 @@ public class TreeBranch {
 		return normals;
 	}
 
-	public void GenerateBranchMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
+	public void GenerateBranchMeshData(ICollection<Vector3> vertices, ICollection<int> triangles, ICollection<Vector2> uvs, ICollection<Vector3> normals) {
 		if (Nodes.Count == 0) return;
 		int vertexOffset = vertices.Count;
 
@@ -140,7 +141,7 @@ public class TreeBranch {
 			foreach (Vector3 circleVertex in CIRCLE_VERTICES) {
 				Quaternion worldRotation = node.WorldRotation;
 				vertices.Add(node.WorldPosition + worldRotation * circleVertex * radius);
-				uvs.Add(new Vector2(Random.value, Random.value)); // TODO: generate proper uvs
+				uvs.Add(new Vector2(0.5f, 0.5f)); // TODO: generate proper uvs
 				normals.Add(worldRotation * circleVertex);
 			}
 		}
@@ -167,7 +168,7 @@ public class TreeBranch {
 		}
 	}
 
-	public void GenerateLeafMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
+	public void GenerateLeafMeshData(ICollection<Vector3> vertices, ICollection<int> triangles, ICollection<Vector2> uvs, ICollection<Vector3> normals) {
 		foreach (TreeBranchNode node in Nodes) {
 			foreach (TreeLeaf leaf in node.Leaves) {
 				leaf.GenerateMeshData(vertices, triangles, uvs, normals);

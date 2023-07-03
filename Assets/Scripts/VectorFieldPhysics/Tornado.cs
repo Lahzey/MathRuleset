@@ -20,6 +20,11 @@ public class Tornado : MonoBehaviour, VectorField {
 
 	private bool IsVFXLoaded = false;
 
+
+	private void OnEnable() {
+		UpdateVisualEffect();
+	}
+
 	private void OnValidate() {
 		offset = new Vector3(0, startHeight * height, 0);
 		UpdateVisualEffect();

@@ -1,4 +1,5 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -23,12 +24,21 @@ public class Tree {
 	}
 
 	public Mesh GenerateMesh() {
-
-		List<Vector3> vertices = new List<Vector3>();
-		List<Vector2> uvs = new List<Vector2>();
-		List<Vector3> normals = new List<Vector3>();
-		List<int> branchTriangles = new List<int>();
-		List<int> leafTriangles = new List<int>();
+		// calculate list capacities in advance
+		int vertexCount = 0;
+		int branchTriangleCount = 0;
+		int leafTriangleCount = 0;
+		foreach (TreeBranch branch in Branches) {
+			vertexCount += branch.Nodes.Count * 2;
+			branchTriangleCount += branch.Nodes.Count * 6;
+			leafTriangleCount += branch.Leaves.Count * 6;
+		}
+		
+		ICollection<Vector3> vertices = new List<Vector3>(vertexCount);
+		ICollection<Vector2> uvs = new List<Vector2>(vertexCount);
+		ICollection<Vector3> normals = new List<Vector3>(vertexCount);
+		ICollection<int> branchTriangles = new List<int>(branchTriangleCount);
+		ICollection<int> leafTriangles = new List<int>(leafTriangleCount);
 		foreach (TreeBranch branch in Branches) {
 			branch.GenerateBranchMeshData(vertices, branchTriangles, uvs, normals);
 			branch.GenerateLeafMeshData(vertices, leafTriangles, uvs, normals);
@@ -39,8 +49,8 @@ public class Tree {
 		mesh.subMeshCount = 2;
 		
 		mesh.vertices = vertices.ToArray();
-		mesh.SetTriangles(branchTriangles, 0);
-		mesh.SetTriangles(leafTriangles, 1);
+		mesh.SetTriangles(branchTriangles.ToList(), 0);
+		mesh.SetTriangles(leafTriangles.ToList(), 1);
 		mesh.normals = normals.ToArray();
 		mesh.uv = uvs.ToArray();
 		

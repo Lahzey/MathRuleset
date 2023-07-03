@@ -449,9 +449,11 @@ MonoBehaviour:
   seed: 0
   drawSkeleton: 0
   drawBranchOrigins: 0
-  drawBranchNodes: 1
+  drawBranchNodes: 0
   drawBranchDirections: 0
-  drawLeafTriangles: 1
+  drawLeafTriangles: 0
+  spawnNext: 0
+  nextSpawnLocation: {x: 0, y: 0, z: 0}
 --- !u!33 &1750074818
 MeshFilter:
   m_ObjectHideFlags: 0

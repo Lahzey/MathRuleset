@@ -1,5 +1,7 @@
-﻿using UnityEditor;
+﻿using System;
+using UnityEditor;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace DefaultNamespace.TreeGenerator {
 [RequireComponent(typeof(MeshFilter))]
@@ -13,7 +15,22 @@ public class TreeGenerator : MonoBehaviour {
 	[SerializeField] private bool drawBranchDirections;
 	[SerializeField] private bool drawLeafTriangles;
 	
+	[SerializeField] private bool spawnNext = false;
+	[SerializeField] private Vector3 nextSpawnLocation = Vector3.zero;
+	
 	private Tree tree;
+
+	private void Update() {
+		if (!spawnNext) return;
+		spawnNext = false;
+		int seed = Random.Range(0, 1000000);
+		Tree newTree = new Tree(config, seed);
+		Mesh mesh = newTree.GenerateMesh();
+		GameObject newTreeObject = new GameObject("Tree" + seed);
+		newTreeObject.transform.position = nextSpawnLocation;
+		newTreeObject.AddComponent<MeshFilter>().mesh = mesh;
+		newTreeObject.AddComponent<MeshRenderer>().material = GetComponent<MeshRenderer>().material;
+	}
 
 	private void Start() {
 		tree = new Tree(config, seed);

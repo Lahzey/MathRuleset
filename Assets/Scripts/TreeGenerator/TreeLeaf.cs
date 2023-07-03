@@ -18,7 +18,7 @@ public class TreeLeaf {
 		BranchGenConfig branchConfig = treeConfig[origin.Branch.Depth];
 	}
 	
-	public void GenerateMeshData(List<Vector3> vertices, List<int> triangles, List<Vector2> uvs, List<Vector3> normals) {
+	public void GenerateMeshData(ICollection<Vector3> vertices, ICollection<int> triangles, ICollection<Vector2> uvs, ICollection<Vector3> normals) {
 		Quaternion rotation = WorldRotation;
 		Vector3 originPosition = Origin.WorldPosition + rotation * new Vector3(0, Origin.Radius, 0); // TODO: find a way to go out of node radius on the node normal, not the full direction of the leaf
 		int vertexOffset = vertices.Count;
