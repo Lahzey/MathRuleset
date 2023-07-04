@@ -1,5 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 using UnityEngine.Serialization;
+using Random = UnityEngine.Random;
 
 namespace DefaultNamespace.TreeGenerator {
 
@@ -82,9 +84,12 @@ public class BranchGenConfig : ScriptableObject {
 		
 		float timeSectorSize = 1f / count; // distribute the time on an animation curve (0-1) into sectors for each angle
 		for (int i = 0; i < count; i++) {
+			float angle = Random.Range(angleRange.x, angleRange.y);
 			float time = timeSectorSize * i + Random.Range(0, timeSectorSize); // randomize the time within the sector
 			float circlePos = (positionCurve.Evaluate(time) + 0.25f) * Mathf.PI * 2; // evaluate the curve and offset by 0.25 to have angle 0 point to the right
-			directions[i] = new Vector3(Mathf.Sin(circlePos), 0, Mathf.Cos(circlePos)); // see SteeringBehaviour.Wander for source
+			Vector3 direction = new Vector3(Mathf.Sin(circlePos), 0, Mathf.Cos(circlePos));
+			// directions[i] = Quaternion.AngleAxis(angle, Vector3.Cross(direction, Vector3.up)) * direction;
+			directions[i] = direction;
 		}
 		return directions;
 	}

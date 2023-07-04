@@ -16,17 +16,17 @@ MonoBehaviour:
   radiusRange: {x: 0.5, y: 1}
   radiusDecayRange: {x: 0.1, y: 0.3}
   RadiusDecayMode: 0
-  nodeFrequencyRange: {x: 0.3, y: 1}
-  nodeXAngleRange: {x: -5, y: 5}
-  nodeZAngleRange: {x: -5, y: 5}
-  MaxNodeXAngleDeviation: {x: -45, y: 45}
-  MaxNodeZAngleDeviation: {x: -45, y: 45}
+  nodeFrequencyRange: {x: 0.2, y: 0.5}
+  nodeXAngleRange: {x: -3, y: 3}
+  nodeZAngleRange: {x: -3, y: 3}
+  MaxNodeXAngleDeviation: {x: -25, y: 25}
+  MaxNodeZAngleDeviation: {x: -25, y: 25}
   leafSpawnRadiusThreshold: {x: 0.01, y: 0.02}
-  minLeafSize: {x: 0.1, y: 0.1}
-  maxLeafSize: {x: 0.5, y: 0.5}
+  minLeafSize: {x: 0.25, y: 0.25}
+  maxLeafSize: {x: 0.2, y: 0.2}
   leafProbabilityRange: {x: 0.3, y: 1}
   leafCountRange: {x: 1, y: 2}
-  leafRadiusDecayRange: {x: 0.0003, y: 0.001}
+  leafRadiusDecayRange: {x: 0.003, y: 0.01}
   leafAngleRange: {x: -70, y: 70}
   leafPositionCurve:
     serializedVersion: 2
@@ -55,7 +55,7 @@ MonoBehaviour:
   minBranchingHeightRange: {x: 2.5, y: 5}
   branchingProbabilityRange: {x: 0.5, y: 1}
   branchingCountRange: {x: 1, y: 3}
-  branchingAngleRange: {x: 10, y: 70}
+  branchingAngleRange: {x: 70, y: 70}
   branchingPositionCurve:
     serializedVersion: 2
     m_Curve:

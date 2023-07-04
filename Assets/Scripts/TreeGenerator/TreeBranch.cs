@@ -63,6 +63,7 @@ public class TreeBranch {
 			
 			// create the node
 			TreeBranchNode nextNode = new TreeBranchNode(this, nextNodePosition, rotation, radius);
+			nextNode.DistanceToPreviousNode = distanceToNextNode;
 			Nodes.Add(nextNode);
 			
 			// handle branching
@@ -127,6 +128,7 @@ public class TreeBranch {
 	public int GenerateBranchMeshData(Vector3[] vertices, List<int> triangles, Vector2[] uvs, Vector3[] normals, int vertexOffset) {
 		if (Nodes.Count == 0) return 0;
 		int nodeSize = CIRCLE_VERTICES.Length;
+		int halfNodeSize = nodeSize / 2;
 
 		// generate vertices (creates a circle for each node, including the origin), uvs and normals
 		int vertexIndex = vertexOffset;
@@ -141,12 +143,17 @@ public class TreeBranch {
 				node = Nodes[i];
 				radius = node.Radius;
 			}
-
+			
+			float nodeHeight = i < 0 ? Nodes[0].DistanceToPreviousNode : node.DistanceToPreviousNode;
+			float circumference = 2 * Mathf.PI * radius;
+			float uvSizePerPart = Mathf.Round(circumference / nodeHeight) / (nodeSize / 2f);
+			
 			for (int j = 0; j < nodeSize; j++) {
 				Vector3 circleVertex = CIRCLE_VERTICES[j];
 				Quaternion worldRotation = node.WorldRotation;
 				vertices[vertexIndex] = node.WorldPosition + worldRotation * circleVertex * radius;
-				uvs[vertexIndex] = new Vector2(0.5f, 0.5f); // TODO: generate proper uvs
+				float uvX = j <= halfNodeSize ? uvSizePerPart * j : 1 - uvSizePerPart * (j - halfNodeSize);
+				uvs[vertexIndex] = new Vector2(uvX,i % 2 == 0 ? 1 : 0);
 				normals[vertexIndex] = worldRotation * circleVertex;
 				vertexIndex++;
 			}

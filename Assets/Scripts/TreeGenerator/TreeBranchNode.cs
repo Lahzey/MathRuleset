@@ -5,11 +5,13 @@ namespace DefaultNamespace.TreeGenerator {
 public class TreeBranchNode {
 	
 	public readonly TreeBranch Branch;
-	private Vector3 LocalPosition;
+	public Vector3 LocalPosition;
 	public Vector3 WorldPosition;
 	private Quaternion LocalRotation;
 	public Quaternion WorldRotation;
 	public readonly float Radius;
+	
+	public float DistanceToPreviousNode = 0;
 	
 	public readonly List<TreeBranch> SubBranches = new List<TreeBranch>();
 	public readonly List<TreeLeaf> Leaves = new List<TreeLeaf>();
