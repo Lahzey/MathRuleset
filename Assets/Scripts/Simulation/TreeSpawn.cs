@@ -80,9 +80,6 @@ public class TreeSpawn : MonoBehaviour {
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
 		meshRenderer.materials = new Material[] {barkMaterial, leafMaterial};
 		spawnTime = Time.time;
-		Obstacle obstacle = gameObject.AddComponent<Obstacle>();
-		obstacle.influenceGrid = influenceGrid;
-		obstacle.bounds = new Vector2(tree.Branches[0].Nodes[0].Radius * 2, tree.Branches[0].Nodes[0].Radius * 2);
 	}
 
 	private void CheckGrow() {
@@ -91,6 +88,11 @@ public class TreeSpawn : MonoBehaviour {
 		if (scale >= 1) {
 			scale = 1;
 			fullyGrown = true;
+			
+			// only add obstacle after tree is fully grown so scale is correct
+			Obstacle obstacle = gameObject.AddComponent<Obstacle>();
+			obstacle.influenceGrid = influenceGrid;
+			obstacle.bounds = new Vector2(tree.Branches[0].Nodes[0].Radius * 2, tree.Branches[0].Nodes[0].Radius * 2);
 		}
 		transform.localScale = Vector3.one * scale;
 	}

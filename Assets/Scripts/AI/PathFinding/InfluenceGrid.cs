@@ -91,19 +91,19 @@ public class InfluenceGrid : MonoBehaviour {
 		return cells[cellPosition.x, cellPosition.y].Influences[influenceType];
 	}
 
-	public void SetInfluence(Vector3 position, InfluenceType influenceType, float influence, bool overwriteIfLess = false) {
+	public void SetInfluence(Vector3 position, InfluenceType influenceType, float influence) {
 		Vector2Int cellPosition = WorldToCell(position);
-		SetInfluence(cells[cellPosition.x, cellPosition.y], influenceType, influence, overwriteIfLess);
+		SetInfluence(cells[cellPosition.x, cellPosition.y], influenceType, influence);
 	}
 
-	private void SetInfluence(Cell cell, InfluenceType influenceType, float influence, bool overwriteIfLess = false) {
-		if (!overwriteIfLess && cell.Influences[influenceType] > influence) return;
+	private void SetInfluence(Cell cell, InfluenceType influenceType, float influence) {
+		if (cell.Influences[influenceType] >= influence) return;
 		if (influence < minInfluenceValue) return; // ignored so we don't propagate through the whole map with tiny values
 		
 		cell.Influences[influenceType] = influence;
 		cell.DecayInfluence[influenceType] = false; // prevent it from decaying in the next update
 		foreach (Cell neighbour in cell.GetNeighboursArray(false)) {
-			SetInfluence(neighbour, influenceType, influence * propagationMod, overwriteIfLess);
+			if (neighbour != null) SetInfluence(neighbour, influenceType, influence * propagationMod);
 		}
 	}
 

@@ -42,7 +42,7 @@ public class Tornado : MonoBehaviour, VectorField {
 		position += offset;
 		if (position.y <= 0 || position.y > height || (position.x == 0 && position.z == 0)) return Vector3.zero;
 
-		float maxComponentSize = ConvertToLogGrowth((height - position.y) / height, 10f); // make wind fall of at the top (value between 0 and 1, will be scaled with maxSpeed later)
+		float heightFalloff = ConvertToLogGrowth((height - position.y) / height, 10f); // make wind fall of at the top (value between 0 and 1, will be scaled with maxSpeed later)
 		float eyeSize = GetEyeSize(position.y);
 		float ringCenter = eyeSize + position.y * 0.2f;
 		float ringThickness = ringCenter - eyeSize;
@@ -53,16 +53,16 @@ public class Tornado : MonoBehaviour, VectorField {
 		// wind ring
 		Vector2 direction = new Vector2(position.z * (clockwise ? 1 : -1), position.x * (clockwise ? -1 : 1)); // creates a circle around 0/0
 		direction /= distToCenter; // normalize
-		float componentSize = distToRingCenterPercent * maxComponentSize;
+		float componentSize = distToRingCenterPercent;
 		Vector3 unscaledVector = new Vector3(direction.x * componentSize, 0, direction.y * componentSize);
 
 		// suction towards the center
 		Vector3 suctionToCenter = new Vector3(-position.x / distToCenter, 0, -position.z / distToCenter);
 		float suctionStrength = distToCenter > ringCenter ? LogGrowthConstantFalloff(1 - (distToCenter - ringCenter) / ringThickness, 0.5f, 3f) : 0;
-		unscaledVector += suctionToCenter * (suctionStrength * maxComponentSize);
+		unscaledVector += suctionToCenter * (suctionStrength * heightFalloff * heightFalloff); // suction should fall off harder so stuff is ejected at the top
 
 		// suction upwards
-		unscaledVector += Vector3.up * (distToRingCenterPercent * 0.5f * maxComponentSize); // upwards speed can only be 0.5f as fast as the horizontal speed
+		unscaledVector += Vector3.up * (distToRingCenterPercent * 0.5f * heightFalloff); // upwards speed can only be 0.5f as fast as the horizontal speed
 
 		return unscaledVector * maxSpeed;
 	}

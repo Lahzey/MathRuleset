@@ -150,6 +150,7 @@ public class TreeBranch {
 		if (Nodes.Count == 0) return offsets;
 		int nodeSize = CIRCLE_VERTICES.Length;
 		int halfNodeSize = nodeSize / 2;
+		float oneOverNodeSize = 1f / nodeSize;
 		
 		int vertexOffset = offsets.x;
 		int triangleOffset = offsets.y;
@@ -162,6 +163,7 @@ public class TreeBranch {
 		// generate vertices (creates a circle for each node, including the origin), uvs and normals
 		int vertexIndex = vertexOffset;
 		TreeBranchNode node;
+		float uvY = 0;
 		for (int i = -1; i < Nodes.Count; i++) {
 			float radius;
 			Vector3 position;
@@ -181,16 +183,17 @@ public class TreeBranch {
 			
 			float nodeHeight = i < 0 ? Nodes[0].DistanceToPreviousNode : node.DistanceToPreviousNode;
 			float circumference = 2 * Mathf.PI * radius;
-			float uvSizePerPart = Mathf.Round(circumference / nodeHeight) / (nodeSize / 2f);
+			float oneOverCircumference = 1 / circumference;
 			
 			for (int j = 0; j < nodeSize; j++) {
 				Vector3 circleVertex = CIRCLE_VERTICES[j];
 				vertices[vertexIndex] = position + rotation * circleVertex * radius;
-				float uvX = j <= halfNodeSize ? uvSizePerPart * j : 1 - uvSizePerPart * (j - halfNodeSize);
-				uvs[vertexIndex] = new Vector2(uvX,i % 2 == 0 ? 1 : 0);
+				float uvX = j <= halfNodeSize ? j * oneOverNodeSize * 2 : 1 - (j - halfNodeSize) * oneOverNodeSize * 2;
+				uvs[vertexIndex] = new Vector2(uvX, uvY);
 				normals[vertexIndex] = rotation * circleVertex;
 				vertexIndex++;
 			}
+			uvY += nodeHeight * oneOverCircumference * 2;
 		}
 		
 		// generate two triangles for each vertex on each node (connecting to previous node or branch origin if first node)
