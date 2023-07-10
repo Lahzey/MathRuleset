@@ -1,7 +1,9 @@
 ﻿using System.Collections.Generic;
 using System.Linq;
+using Simulation;
 using UnityEngine;
 using UnityEngine.Rendering;
+using Random = Simulation.Random;
 
 namespace DefaultNamespace.TreeGenerator {
 public class Tree {
@@ -13,17 +15,17 @@ public class Tree {
 
 
 	public Tree(TreeGenConfig config, int seed) {
-		Random.InitState(seed);
+		Random random = new Random(seed);
 
-		float radius = config[0].Radius;
+		float radius = config[0].Radius(random);
 		rootNode = new TreeBranchNode(null, Vector3.zero, Quaternion.identity, radius);
-		trunk = new TreeBranch(rootNode, Vector3.up, radius, config, 0);
-		
+		trunk = new TreeBranch(random, rootNode, Quaternion.identity, radius, config, 0);
+
 		Branches.Add(trunk);
 		trunk.GetSubBranches(Branches);
 	}
 
-	public Mesh GenerateMesh() {
+	public PreparedMeshData PrepareMeshData() {
 		// calculate list capacities in advance
 		int totalVertexCount = 0;
 		int totalBranchTriangleCount = 0;
@@ -38,31 +40,54 @@ public class Tree {
 		Vector3[] vertices = new Vector3[totalVertexCount];
 		Vector2[] uvs = new Vector2[totalVertexCount];
 		Vector3[] normals = new Vector3[totalVertexCount];
-		List<int> branchTriangles = new List<int>(totalBranchTriangleCount);
-		List<int> leafTriangles = new List<int>(totalLeafTriangleCount);
-		int vertexOffset = 0;
+		int[] branchTriangles = new int[totalBranchTriangleCount];
+		int[] leafTriangles = new int[totalLeafTriangleCount];
+		Vector2Int branchOffsets = Vector2Int.zero;
+		Vector2Int leafOffsets = Vector2Int.zero;
 		foreach (TreeBranch branch in Branches) {
-			vertexOffset = branch.GenerateBranchMeshData(vertices, branchTriangles, uvs, normals, vertexOffset);
-			vertexOffset = branch.GenerateLeafMeshData(vertices, leafTriangles, uvs, normals, vertexOffset);
+			branchOffsets = branch.GenerateBranchMeshData(vertices, branchTriangles, uvs, normals, branchOffsets);
+			leafOffsets.x = branchOffsets.x;
+			leafOffsets = branch.GenerateLeafMeshData(vertices, leafTriangles, uvs, normals, leafOffsets);
+			branchOffsets.x = leafOffsets.x;
 		}
+		
+		return new PreparedMeshData(vertices, uvs, normals, branchTriangles.ToArray(), leafTriangles.ToArray());
+	}
 
+	public Mesh GenerateMesh(PreparedMeshData preparedMeshData, bool markMeshNoLongerReadable = true) {
 		Mesh mesh = new Mesh();
-		mesh.indexFormat = vertices.Length > 65000 ? IndexFormat.UInt32 : IndexFormat.UInt16;
+		mesh.indexFormat = preparedMeshData.Vertices.Length > 65000 ? IndexFormat.UInt32 : IndexFormat.UInt16;
 		mesh.subMeshCount = 2;
 
-		mesh.vertices = vertices;
-		mesh.SetTriangles(branchTriangles, 0);
-		mesh.SetTriangles(leafTriangles, 1);
-		mesh.normals = normals;
-		mesh.uv = uvs;
+		mesh.vertices = preparedMeshData.Vertices;
+		mesh.SetTriangles(preparedMeshData.BranchTriangles, 0);
+		mesh.SetTriangles(preparedMeshData.LeafTriangles, 1);
+		mesh.normals = preparedMeshData.Normals;
+		mesh.uv = preparedMeshData.Uvs;
 		
 		// apply
 		mesh.RecalculateBounds();
 		mesh.RecalculateTangents();
-		mesh.UploadMeshData(true);
+		mesh.UploadMeshData(markMeshNoLongerReadable);
 		
 		return mesh;
 	}
 
+}
+	
+public struct PreparedMeshData {
+	public readonly Vector3[] Vertices;
+	public readonly Vector2[] Uvs;
+	public readonly Vector3[] Normals;
+	public readonly int[] BranchTriangles;
+	public readonly int[] LeafTriangles;
+
+	public PreparedMeshData(Vector3[] vertices, Vector2[] uvs, Vector3[] normals, int[] branchTriangles, int[] leafTriangles) {
+		Vertices = vertices;
+		Uvs = uvs;
+		Normals = normals;
+		BranchTriangles = branchTriangles;
+		LeafTriangles = leafTriangles;
+	}
 }
 }

@@ -20,6 +20,8 @@ public class Tornado : MonoBehaviour, VectorField {
 
 	private bool IsVFXLoaded = false;
 
+	public float MaxSpeed => maxSpeed;
+
 
 	private void OnEnable() {
 		UpdateVisualEffect();
@@ -128,6 +130,8 @@ public class Tornado : MonoBehaviour, VectorField {
 	}
 
 	private void OnDrawGizmos() {
+		if (!IsVFXLoaded) UpdateVisualEffect();
+		
 		float minY = offset.y;
 		float maxY = height;
 		float effectiveHeight = height - offset.y;

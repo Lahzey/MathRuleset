@@ -2,7 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 
-namespace AI.BehaviourTree {
+namespace AI.Behaviour {
 public abstract class Node : IEnumerable<Node> {
 
 	protected readonly List<Node> Children = new List<Node>();
@@ -35,12 +35,13 @@ public abstract class Node : IEnumerable<Node> {
 	
 	protected abstract NodeState EvaluateImpl();
 	
-	public virtual void Add(Node child) {
+	public virtual Node Add(Node child) {
 		throw new NotImplementedException(); // will be thrown by default, but can be overriden
 	}
 	
-	public virtual bool Remove(Node child) {
-		return Children.Remove(child);
+	public virtual Node Remove(Node child) {
+		Children.Remove(child);
+		return this;
 	}
 
 	public IEnumerator<Node> GetEnumerator() {

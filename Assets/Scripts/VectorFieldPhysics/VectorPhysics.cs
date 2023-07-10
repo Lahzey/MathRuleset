@@ -43,7 +43,6 @@ public class VectorPhysics : MonoBehaviour {
 		float relativeMagnitude = relativeVelocity.magnitude;
 		float newRelativeMagnitude = (float) (-1 / (dragConstMods * time - 1 / relativeMagnitude));
 		velocity = airSpeed + newRelativeMagnitude * (relativeVelocity / relativeMagnitude);
-		Debug.Log($"{PV(relativeVelocity)}[{relativeMagnitude}] -> {PV(relativeVelocity / relativeMagnitude)} * {newRelativeMagnitude} = {PV(newRelativeMagnitude * (relativeVelocity / relativeMagnitude))}[{(newRelativeMagnitude * (relativeVelocity / relativeMagnitude)).magnitude}]");
 		
 		// prevent really small numbers, just stop the object
 		if (velocity.x < 0.0001f && velocity.x > -0.0001f) velocity.x = 0;

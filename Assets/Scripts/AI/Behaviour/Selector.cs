@@ -1,4 +1,4 @@
-﻿namespace AI.BehaviourTree {
+﻿namespace AI.Behaviour {
 public class Selector : CompositeNode {
 	
 	public bool AllowInterruption { get; set; }

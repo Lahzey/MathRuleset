@@ -1,6 +1,4 @@
-﻿using System;
-
-namespace AI.BehaviourTree {
+﻿namespace AI.Behaviour {
 public class Sequencer : CompositeNode {
 	
 	public bool AllowInterruption { get; set; }

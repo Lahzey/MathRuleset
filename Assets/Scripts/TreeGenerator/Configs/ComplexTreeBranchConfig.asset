@@ -14,20 +14,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   maxLengthRange: {x: 50, y: 50}
   radiusRange: {x: 1, y: 1}
-  radiusDecayRange: {x: 0.1, y: 0.4}
+  radiusDecayRange: {x: 0.4, y: 0.6}
   RadiusDecayMode: 0
   nodeFrequencyRange: {x: 1, y: 2}
-  nodeXAngleRange: {x: -15, y: 15}
-  nodeZAngleRange: {x: -15, y: 15}
-  MaxNodeXAngleDeviation: {x: -45, y: 45}
-  MaxNodeZAngleDeviation: {x: -45, y: 45}
+  nodeXAngleRange: {x: -5, y: 5}
+  nodeZAngleRange: {x: -5, y: 5}
+  MaxNodeXAngleDeviation: {x: -30, y: 30}
+  MaxNodeZAngleDeviation: {x: -30, y: 30}
   leafSpawnRadiusThreshold: {x: 0.01, y: 0.02}
   minLeafSize: {x: 0.25, y: 0.25}
   maxLeafSize: {x: 0.2, y: 0.2}
   leafProbabilityRange: {x: 0.3, y: 1}
   leafCountRange: {x: 1, y: 2}
   leafRadiusDecayRange: {x: 0.003, y: 0.01}
-  leafAngleRange: {x: -70, y: 70}
+  leafAngleRange: {x: 70, y: 110}
   leafPositionCurve:
     serializedVersion: 2
     m_Curve:
@@ -81,55 +81,28 @@ MonoBehaviour:
     m_RotationOrder: 4
   minBranchingHeightRange: {x: 0.5, y: 1.5}
   branchingProbabilityRange: {x: 0.2, y: 0.5}
-  branchingCountRange: {x: 1, y: 2}
-  branchingAngleRange: {x: -30, y: 70}
+  branchingCountRange: {x: 2, y: 2}
+  branchingAngleRange: {x: 10, y: 20}
   branchingPositionCurve:
     serializedVersion: 2
     m_Curve:
     - serializedVersion: 3
       time: 0
-      value: 0.99905396
-      inSlope: 0
-      outSlope: 0
-      tangentMode: 0
+      value: 0
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
       weightedMode: 0
       inWeight: 0
       outWeight: 0
     - serializedVersion: 3
-      time: 0.499632
-      value: 0.9977052
-      inSlope: 0.006269739
-      outSlope: 0.006269739
-      tangentMode: 0
+      time: 1
+      value: 1
+      inSlope: 1
+      outSlope: 1
+      tangentMode: 34
       weightedMode: 0
-      inWeight: 0.1301477
-      outWeight: 0.09280424
-    - serializedVersion: 3
-      time: 0.49972114
-      value: 0.7048147
-      inSlope: -2.5685818
-      outSlope: -2.5685818
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.33333334
-      outWeight: 0.048515793
-    - serializedVersion: 3
-      time: 0.5008504
-      value: 0.50085217
-      inSlope: -0.011721455
-      outSlope: -0.011721455
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 1
-      outWeight: 0.11426238
-    - serializedVersion: 3
-      time: 0.99976325
-      value: 0.5003804
-      inSlope: -0.000018486742
-      outSlope: -0.000018486742
-      tangentMode: 0
-      weightedMode: 0
-      inWeight: 0.2135544
+      inWeight: 0
       outWeight: 0
     m_PreInfinity: 2
     m_PostInfinity: 2

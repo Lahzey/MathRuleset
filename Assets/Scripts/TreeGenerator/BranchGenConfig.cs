@@ -1,7 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.Serialization;
-using Random = UnityEngine.Random;
+using Random = Simulation.Random;
 
 namespace DefaultNamespace.TreeGenerator {
 
@@ -9,26 +9,26 @@ namespace DefaultNamespace.TreeGenerator {
 public class BranchGenConfig : ScriptableObject {
 	
 	[SerializeField] private Vector2 maxLengthRange = new Vector2(50f, 50f);
-	public float MaxLength => Random.Range(maxLengthRange.x, maxLengthRange.y);
+	public float MaxLength(Random random) => random.Range(maxLengthRange.x, maxLengthRange.y);
 
 	[Header("Radius")]
 	[SerializeField] private Vector2 radiusRange = new Vector2(0.5f, 1.5f);
-	public float Radius => Random.Range(radiusRange.x, radiusRange.y);
+	public float Radius(Random random) => random.Range(radiusRange.x, radiusRange.y);
 	
 	[SerializeField] private Vector2 radiusDecayRange = new Vector2(0.05f, 0.15f);
-	public float RadiusDecay => Random.Range(radiusDecayRange.x, radiusDecayRange.y);
+	public float RadiusDecay(Random random) => random.Range(radiusDecayRange.x, radiusDecayRange.y);
 	public RadiusDecayMode RadiusDecayMode = RadiusDecayMode.PER_BRANCH_TRANSFER_RADIUS;
 	
 	[Header("Node Generation")]
 	[SerializeField] private Vector2 nodeFrequencyRange = new Vector2(0.3f, 1f);
-	public float NodeFrequency => Random.Range(nodeFrequencyRange.x, nodeFrequencyRange.y);
+	public float NodeFrequency(Random random) => random.Range(nodeFrequencyRange.x, nodeFrequencyRange.y);
 	
 	[SerializeField] private Vector2 nodeXAngleRange = new Vector2(-15f, 15f);
 	[SerializeField] private Vector2 nodeZAngleRange = new Vector2(-15f, 15f);
-	public Vector3 NodeAngle => new Vector3(
-		Random.Range(nodeXAngleRange.x, nodeXAngleRange.y),
+	public Vector3 NodeAngle(Random random) => new Vector3(
+		random.Range(nodeXAngleRange.x, nodeXAngleRange.y),
 		0f,
-		Random.Range(nodeZAngleRange.x, nodeZAngleRange.y)
+		random.Range(nodeZAngleRange.x, nodeZAngleRange.y)
 	);
 	
 	public Vector2 MaxNodeXAngleDeviation = new Vector2(-45f, 45f);
@@ -36,60 +36,59 @@ public class BranchGenConfig : ScriptableObject {
 	
 	[Header("Leaf Generation")]
 	[SerializeField] private Vector2 leafSpawnRadiusThreshold = new Vector2(0.05f, 0.1f);
-	public float LeafSpawnRadiusThreshold => Random.Range(leafSpawnRadiusThreshold.x, leafSpawnRadiusThreshold.y);
+	public float LeafSpawnRadiusThreshold(Random random) => random.Range(leafSpawnRadiusThreshold.x, leafSpawnRadiusThreshold.y);
 	
 	[SerializeField] private Vector2 minLeafSize = new Vector2(0.1f, 0.2f);
 	[SerializeField] private Vector2 maxLeafSize = new Vector2(0.1f, 0.2f);
-	public Vector2 LeafSize => new Vector2(
-		Random.Range(minLeafSize.x, maxLeafSize.x),
-		Random.Range(minLeafSize.y, maxLeafSize.y)
+	public Vector2 LeafSize(Random random) => new Vector2(
+		random.Range(minLeafSize.x, maxLeafSize.x),
+		random.Range(minLeafSize.y, maxLeafSize.y)
 	);
 	
 	[SerializeField] private Vector2 leafProbabilityRange = new Vector2(0.3f, 1f);
-	public float LeafProbability => Random.Range(leafProbabilityRange.x, leafProbabilityRange.y);
+	public float LeafProbability(Random random) => random.Range(leafProbabilityRange.x, leafProbabilityRange.y);
 	
 	[SerializeField] private Vector2Int leafCountRange = new Vector2Int(1, 2);
-	public int LeafCount => Random.Range(leafCountRange.x, leafCountRange.y);
+	public int LeafCount(Random random) => random.Range(leafCountRange.x, leafCountRange.y);
 	
 	[SerializeField] private Vector2 leafRadiusDecayRange = new Vector2(0.005f, 0.01f);
-	public float LeafRadiusDecay => Random.Range(leafRadiusDecayRange.x, leafRadiusDecayRange.y);
+	public float LeafRadiusDecay(Random random) => random.Range(leafRadiusDecayRange.x, leafRadiusDecayRange.y);
 	
 	[SerializeField] private Vector2 leafAngleRange = new Vector2(-70f, 70f);
 	[SerializeField] private AnimationCurve leafPositionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 	
 	[Header("Branching")]
 	[SerializeField] private Vector2 minBranchingHeightRange = new Vector2(0f, 0f);
-	public float MinBranchingHeight => Random.Range(minBranchingHeightRange.x, minBranchingHeightRange.y);
+	public float MinBranchingHeight(Random random) => random.Range(minBranchingHeightRange.x, minBranchingHeightRange.y);
 	
 	[SerializeField] private Vector2 branchingProbabilityRange = new Vector2(0.3f, 1f);
-	public float BranchingProbability => Random.Range(branchingProbabilityRange.x, branchingProbabilityRange.y);
+	public float BranchingProbability(Random random) => random.Range(branchingProbabilityRange.x, branchingProbabilityRange.y);
 	
 	[SerializeField] private Vector2Int branchingCountRange = new Vector2Int(1, 2);
-	public int BranchingCount => Random.Range(branchingCountRange.x, branchingCountRange.y);
+	public int BranchingCount(Random random) => random.Range(branchingCountRange.x, branchingCountRange.y);
 	
 	[SerializeField] private Vector2 branchingAngleRange = new Vector2(-70f, 70f);
 	[SerializeField] private AnimationCurve branchingPositionCurve = AnimationCurve.Linear(0f, 0f, 1f, 1f);
 
-	public Vector3[] GenerateBranchingDirections(int count) {
-		return GenerateDirections(branchingAngleRange, branchingPositionCurve, count);
+	public Quaternion[] GenerateBranchingDirections(Random random, int count) {
+		return GenerateDirections(random, branchingAngleRange, branchingPositionCurve, count);
 	}
 	
-	public Vector3[] GenerateLeafDirections(int count) {
-		return GenerateDirections(leafAngleRange, leafPositionCurve, count);
+	public Quaternion[] GenerateLeafDirections(Random random, int count) {
+		return GenerateDirections(random, leafAngleRange, leafPositionCurve, count);
 	}
 	
-	private Vector3[] GenerateDirections(Vector2 angleRange, AnimationCurve positionCurve, int count) {
-		Vector3[] directions = new Vector3[count];
+	private Quaternion[] GenerateDirections(Random random, Vector2 angleRange, AnimationCurve positionCurve, int count) {
+		Quaternion[] directions = new Quaternion[count];
 		if (count == 0) return directions; // early return safes performance and prevents divide-by-zero
 		
 		float timeSectorSize = 1f / count; // distribute the time on an animation curve (0-1) into sectors for each angle
 		for (int i = 0; i < count; i++) {
-			float angle = Random.Range(angleRange.x, angleRange.y);
-			float time = timeSectorSize * i + Random.Range(0, timeSectorSize); // randomize the time within the sector
-			float circlePos = (positionCurve.Evaluate(time) + 0.25f) * Mathf.PI * 2; // evaluate the curve and offset by 0.25 to have angle 0 point to the right
-			Vector3 direction = new Vector3(Mathf.Sin(circlePos), 0, Mathf.Cos(circlePos));
-			// directions[i] = Quaternion.AngleAxis(angle, Vector3.Cross(direction, Vector3.up)) * direction;
-			directions[i] = direction;
+			// float xRotation = Random.Range(angleRange.x, angleRange.y) * 2f * Mathf.PI / 360f;
+			float time = timeSectorSize * i + random.Range(0, timeSectorSize); // randomize the time within the sector
+			// float yRotation = positionCurve.Evaluate(time) * 2f * Mathf.PI;
+			// directions[i] = new Vector3(Mathf.Sin(xRotation) * Mathf.Sin(yRotation), Mathf.Cos(xRotation), Mathf.Sin(xRotation) * Mathf.Cos(yRotation));
+			directions[i] = Quaternion.Euler(random.Range(angleRange.x, angleRange.y), positionCurve.Evaluate(time) * 360f, 0f);
 		}
 		return directions;
 	}

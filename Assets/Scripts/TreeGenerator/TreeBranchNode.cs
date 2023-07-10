@@ -5,10 +5,10 @@ namespace DefaultNamespace.TreeGenerator {
 public class TreeBranchNode {
 	
 	public readonly TreeBranch Branch;
-	public Vector3 LocalPosition;
-	public Vector3 WorldPosition;
-	private Quaternion LocalRotation;
-	public Quaternion WorldRotation;
+	public readonly Vector3 LocalPosition;
+	public readonly Vector3 WorldPosition;
+	public readonly Quaternion LocalRotation;
+	public readonly Quaternion WorldRotation;
 	public readonly float Radius;
 	
 	public float DistanceToPreviousNode = 0;

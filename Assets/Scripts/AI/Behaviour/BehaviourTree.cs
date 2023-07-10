@@ -1,20 +1,21 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
-namespace AI.BehaviourTree {
-public class BehaviourTree : MonoBehaviour {
+namespace AI.Behaviour {
+public class BehaviourTree {
 
 	private readonly Sequencer root = new Sequencer();
 	
-	public bool Remove(Node child) {
-		return root.Remove(child);
+	public BehaviourTree Remove(Node child) {
+		root.Remove(child);
+		return this;
 	}
 
-	public void Add(Node child) {
+	public BehaviourTree Add(Node child) {
 		root.Add(child);
+		return this;
 	}
 
-	private void Update() {
+	public void Evaluate() {
 		root.Evaluate();
 		AfterTraversal(root);
 	}

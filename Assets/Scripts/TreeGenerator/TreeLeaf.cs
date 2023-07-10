@@ -10,17 +10,20 @@ public class TreeLeaf {
 	public readonly Vector2 Size;
 
 
-	public TreeLeaf(TreeBranchNode origin, Vector3 direction, Vector2 size, TreeGenConfig treeConfig) {
+	public TreeLeaf(TreeBranchNode origin, Quaternion rotation, Vector2 size, TreeGenConfig treeConfig) {
 		Origin = origin;
-		LocalRotation = Quaternion.FromToRotation(Vector3.up, direction);
+		LocalRotation = rotation;
 		Size = size;
 		
 		BranchGenConfig branchConfig = treeConfig[origin.Branch.Depth];
 	}
 	
-	public int GenerateMeshData(Vector3[] vertices, List<int> triangles, Vector2[] uvs, Vector3[] normals, int vertexOffset) {
+	public Vector2Int GenerateMeshData(Vector3[] vertices, int[] triangles, Vector2[] uvs, Vector3[] normals, Vector2Int offsets) {
 		Quaternion rotation = WorldRotation;
 		Vector3 originPosition = Origin.WorldPosition + rotation * new Vector3(0, Origin.Radius, 0); // TODO: find a way to go out of node radius on the node normal, not the full direction of the leaf
+		
+		int vertexOffset = offsets.x;
+		int triangleOffset = offsets.y;
 
 		// generate vertices of square going up from origin (x centered at origin)
 		Vector3 bottomLeft = originPosition + rotation * new Vector3(-Size.x / 2, 0, 0);
@@ -29,12 +32,13 @@ public class TreeLeaf {
 		Vector3 topRight = originPosition + rotation * new Vector3(Size.x / 2, Size.y, 0);
 		
 		// generate triangles
-		triangles.Add(1 + vertexOffset);
-		triangles.Add(0 + vertexOffset);
-		triangles.Add(3 + vertexOffset);
-		triangles.Add(0 + vertexOffset);
-		triangles.Add(2 + vertexOffset);
-		triangles.Add(3 + vertexOffset);
+		triangles[triangleOffset++] = 1 + vertexOffset;
+		triangles[triangleOffset++] = 0 + vertexOffset;
+		triangles[triangleOffset++] = 3 + vertexOffset;
+		
+		triangles[triangleOffset++] = 0 + vertexOffset;
+		triangles[triangleOffset++] = 2 + vertexOffset;
+		triangles[triangleOffset++] = 3 + vertexOffset;
 		
 		Vector3 normal = rotation * Vector3.forward;
 		
@@ -56,7 +60,7 @@ public class TreeLeaf {
 		normals[vertexOffset] = normal;
 		vertexOffset++;
 
-		return vertexOffset;
+		return new Vector2Int(vertexOffset, triangleOffset);
 	}
 }
 }

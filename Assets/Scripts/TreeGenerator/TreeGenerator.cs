@@ -25,7 +25,7 @@ public class TreeGenerator : MonoBehaviour {
 		spawnNext = false;
 		int seed = Random.Range(0, 1000000);
 		Tree newTree = new Tree(config, seed);
-		Mesh mesh = newTree.GenerateMesh();
+		Mesh mesh = newTree.GenerateMesh(newTree.PrepareMeshData());
 		GameObject newTreeObject = new GameObject("Tree" + seed);
 		newTreeObject.transform.position = nextSpawnLocation;
 		newTreeObject.AddComponent<MeshFilter>().mesh = mesh;
@@ -34,7 +34,7 @@ public class TreeGenerator : MonoBehaviour {
 
 	private void Start() {
 		tree = new Tree(config, seed);
-		Mesh mesh = tree.GenerateMesh();
+		Mesh mesh = tree.GenerateMesh(tree.PrepareMeshData());
 		MeshFilter meshFilter = GetComponent<MeshFilter>();
 		meshFilter.mesh = mesh;
 	}
