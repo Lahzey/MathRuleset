@@ -16,7 +16,7 @@ public class Tornado : MonoBehaviour, VectorField {
 	[SerializeField] private bool clockwise = true;
 	[SerializeField] private Texture3D fieldSample;
 
-	private Vector3 offset = new Vector3(0, 1, 0);
+	public Vector3 offset { get; private set; } = new Vector3(0, 1, 0);
 
 	private bool IsVFXLoaded = false;
 

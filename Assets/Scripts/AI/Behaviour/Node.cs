@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace AI.Behaviour {
 public abstract class Node : IEnumerable<Node> {

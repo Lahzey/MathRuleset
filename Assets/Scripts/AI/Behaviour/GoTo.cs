@@ -15,7 +15,7 @@ public class GoTo : Node {
 	protected override NodeState EvaluateImpl() {
 		Vector3 target = this.target();
 		if ((agent.transform.position - target).sqrMagnitude < 0.1f) return NodeState.SUCCESS;
-		agent.MoveTo(target);
+		if (!agent.MoveTo(target)) return NodeState.FAILURE;
 		return NodeState.RUNNING;
 	}
 }

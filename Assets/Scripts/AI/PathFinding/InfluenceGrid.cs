@@ -40,9 +40,17 @@ public class InfluenceGrid : MonoBehaviour {
 		if (cells == null) return;
 		
 		foreach (Cell cell in cells) {
-			if (cell.IsObstacle) Gizmos.color = Color.red;
-			else Gizmos.color = Color.green;
-			Gizmos.DrawWireCube(CellToWorld(cell.Position), Vector3.one * scale);
+			if (cell.IsObstacle) Gizmos.color = Color.black;
+			else Gizmos.color = Color.white;
+			Gizmos.DrawWireCube(CellToWorld(cell.Position), Vector3.one * scale * 0.99f);
+			
+			foreach (InfluenceType type in Cell.InfluenceTypes) {
+				float influence = cell.Influences[type];
+				if (influence > 0) {
+					Gizmos.color = Color.Lerp(Color.white, type.GetColor(), influence);
+					Gizmos.DrawCube(CellToWorld(cell.Position), Vector3.one * scale * influence);
+				}
+			}
 		}
 	}
 
@@ -105,6 +113,11 @@ public class InfluenceGrid : MonoBehaviour {
 		foreach (Cell neighbour in cell.GetNeighboursArray(false)) {
 			if (neighbour != null) SetInfluence(neighbour, influenceType, influence * propagationMod);
 		}
+	}
+
+	public bool IsObstacle(Vector3 position) {
+		Vector2Int cellPosition = WorldToCell(position);
+		return cells[cellPosition.x, cellPosition.y].IsObstacle;
 	}
 
 	public void SetObstacle(Vector3 position, bool isObstacle) {

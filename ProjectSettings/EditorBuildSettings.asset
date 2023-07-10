@@ -8,4 +8,10 @@ EditorBuildSettings:
   - enabled: 1
     path: Assets/Scripts/CellularAutomata/CellularAutomataScene.unity
     guid: 99c9720ab356a0642a771bea13969a05
+  - enabled: 1
+    path: Assets/MainMenu/MainMenu.unity
+    guid: 953dae25aae74894ca6dd54d1d8242ff
+  - enabled: 1
+    path: Assets/Scripts/MainScene.unity
+    guid: 84b6f0b096ab4204da7ca243168bbbcb
   m_configObjects: {}

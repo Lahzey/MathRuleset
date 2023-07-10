@@ -13,9 +13,7 @@ public class ControllableTarget : MonoBehaviour {
 		Vector2 movement = new Vector2(Input.GetAxis("Horizontal"), Input.GetAxis("Vertical"));
 		transform.position += movement.To3D() * (moveSpeed * Time.deltaTime);
 
-		if (movement.sqrMagnitude > 0.5f) {
-			influenceGrid.SetInfluence(transform.position, InfluenceType.TARGET, 1);
-		}
+		influenceGrid.SetInfluence(transform.position, InfluenceType.TARGET, 1);
 	}
 }
 }

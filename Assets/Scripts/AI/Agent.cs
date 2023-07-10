@@ -14,9 +14,12 @@ public class Agent : MonoBehaviour {
 		BehaviourTree.Evaluate();
 	}
 
-	public void MoveTo(Vector3 target) {
+	public virtual bool MoveTo(Vector3 target) {
 		Vector3 direction = (target - transform.position).normalized;
-		transform.position += direction * (moveSpeed * Time.deltaTime);
+		Vector3 nextPosition = transform.position + direction * (moveSpeed * Time.deltaTime);
+		if (influenceGrid.IsObstacle(nextPosition)) return false;
+		transform.position = nextPosition;
+		return true;
 	}
 	
 }

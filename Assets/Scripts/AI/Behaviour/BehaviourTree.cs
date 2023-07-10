@@ -3,7 +3,7 @@
 namespace AI.Behaviour {
 public class BehaviourTree {
 
-	private readonly Sequencer root = new Sequencer();
+	private readonly Selector root = new Selector();
 	
 	public BehaviourTree Remove(Node child) {
 		root.Remove(child);

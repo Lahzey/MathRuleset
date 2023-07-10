@@ -89,10 +89,15 @@ public class TreeSpawn : MonoBehaviour {
 			scale = 1;
 			fullyGrown = true;
 			
-			// only add obstacle after tree is fully grown so scale is correct
+			// only add obstacle and influence after tree is fully grown
+			float radius = tree.Branches[0].Nodes[0].Radius;
 			Obstacle obstacle = gameObject.AddComponent<Obstacle>();
 			obstacle.influenceGrid = influenceGrid;
-			obstacle.bounds = new Vector2(tree.Branches[0].Nodes[0].Radius * 2, tree.Branches[0].Nodes[0].Radius * 2);
+			obstacle.bounds = new Vector2(radius * 2, radius * 2);
+			InfluenceSource influenceSource = gameObject.AddComponent<InfluenceSource>();
+			influenceSource.influenceGrid = influenceGrid;
+			influenceSource.influenceType = InfluenceType.ENERGY;
+			influenceSource.radius = radius;
 		}
 		transform.localScale = Vector3.one * scale;
 	}
@@ -101,7 +106,8 @@ public class TreeSpawn : MonoBehaviour {
 		// if tree is within tornado's leafLossRadius, remove leaf material and play leaf loss effect
 		if (tornado == null) return;
 		float distanceSqr = (transform.position - tornado.transform.position).sqrMagnitude;
-		if (distanceSqr > leafLossRadius * leafLossRadius) return;
+		float radius = leafLossRadius + tornado.GetRadius(tornado.offset.y);
+		if (distanceSqr > radius * radius) return;
 		
 		MeshRenderer meshRenderer = GetComponent<MeshRenderer>();
 		meshRenderer.materials = new Material[] {barkMaterial};
@@ -122,7 +128,7 @@ public class TreeSpawn : MonoBehaviour {
 		leafLossEffectInstance.SetGraphicsBuffer("LeafSizes", leafSizes);
 		leafLossEffectInstance.SetFloat("MaxRotationSpeed", 1f);
 		leafLossEffectInstance.SetTexture("LeafTexture", leafMaterial.GetTexture(MAIN_TEX));
-		leafLossEffectInstance.SetFloat("PullSpeed", tornado.MaxSpeed);
+		leafLossEffectInstance.SetFloat("PullSpeed", tornado.MaxSpeed / 10f);
 		leafLossEffectInstance.SetVector3("TornadoPosition", tornado.transform.position);
 		leafLossEffectInstance.SetTexture("TornadoVectorField", tornadoVectorField);
 		leafLossEffectInstance.SetFloat("TornadoVectorFieldScale", tornadoVectorFieldScale);
@@ -130,6 +136,8 @@ public class TreeSpawn : MonoBehaviour {
 		leafLossEffectInstance.SetFloat("TornadoHeight", tornadoHeight);
 		leafLossEffectInstance.SetVector2("TornadoRadiusRange", tornadoRadiusRange);
 		leafLossEffectInstance.Play();
+		
+		Destroy(gameObject.GetComponent<InfluenceSource>()); // disable energy source as the leaves are gone
 	}
 
 	private int GenerateLeafData(Mesh mesh, out GraphicsBuffer leafPositions, out GraphicsBuffer leafRotations, out GraphicsBuffer leafSizes) {

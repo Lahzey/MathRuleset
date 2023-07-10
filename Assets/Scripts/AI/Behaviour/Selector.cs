@@ -4,7 +4,7 @@ public class Selector : CompositeNode {
 	public bool AllowInterruption { get; set; }
 	private int runningIndex = 0;
 	
-	public Selector(bool allowInterruption = false) {
+	public Selector(bool allowInterruption = true) {
 		AllowInterruption = allowInterruption;
 		OnExit += () => runningIndex = 0; // we want to forget the last running index if the sequencer itself is interrupted
 	}
